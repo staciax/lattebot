@@ -141,7 +141,7 @@ class LatteBot(commands.AutoShardedBot):
     async def close(self) -> None:
         log.info('Bot is shutting down...')
 
+        await self.cogs_unload()
         await self.session.close()
-        await self.unload_extension('lattebot.cogs.jsk')
 
         await super().close()
