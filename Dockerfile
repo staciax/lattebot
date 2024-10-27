@@ -1,17 +1,9 @@
-# https://github.com/astral-sh/uv-docker-example
-FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim
+FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim AS builder
 
-RUN apt-get update \
-	&& apt-get upgrade -y \
-	&& apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
 		build-essential \
         git \
     &&  rm -rf /var/lib/apt/lists/*
-
-WORKDIR /app
-
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
 
 # Enable bytecode compilation
 ENV UV_COMPILE_BYTECODE=1
@@ -19,23 +11,35 @@ ENV UV_COMPILE_BYTECODE=1
 # Copy from the cache instead of linking since it's a mounted volume
 ENV UV_LINK_MODE=copy
 
+# Change the working directory to the `app` directory
+WORKDIR /app
+
 # Install the project's dependencies using the lockfile and settings
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --frozen --no-install-project --no-dev --no-editable
 
-# Then, add the rest of the project source code and install it
-# Installing separately from its dependencies allows optimal layer caching
+# Copy the project into the intermediate image
 ADD . /app
+
+# Sync the project 
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --no-editable
 
-# Place executables in the environment at the front of the path
+FROM python:3.13-slim-bookworm
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+COPY --from=builder --chown=app:app /app ./app
+# COPY --from=builder /usr/bin/git /usr/bin/git
+
 ENV PATH="/app/.venv/bin:$PATH"
 
-# Reset the entrypoint, don't invoke `uv`
-ENTRYPOINT []
+CMD ["python", "launcher.py"]
 
-# Run the Application
-CMD ["uv", "run", "launcher.py"]
+# https://docs.astral.sh/uv/guides/integration/docker
+# https://github.com/astral-sh/uv-docker-example
