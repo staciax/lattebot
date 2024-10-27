@@ -39,7 +39,8 @@ def setup_logging(level: int = logging.INFO) -> Generator[None]:
 
         # TODO: dynamically set log directory
         directory = Path('logs')
-        directory.resolve()
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
 
         rotating_file_handler = RotatingFileHandler(
             filename=directory / 'lattebot.log',
