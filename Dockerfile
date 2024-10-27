@@ -1,4 +1,5 @@
-FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim AS builder
+ARG PYTHON_VERSION=3.13
+FROM ghcr.io/astral-sh/uv:python${PYTHON_VERSION}-bookworm-slim AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
 		build-essential \
@@ -27,7 +28,7 @@ ADD . /app
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --no-editable
 
-FROM python:3.13-slim-bookworm
+FROM python:${PYTHON_VERSION}-slim-bookworm
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
