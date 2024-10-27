@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+
+# Environments
+.env
+.venv
+
+# Logs
+*.log
+logs/
+
+# Coverage
+.coverage
+
+# MacOS
+.DS_Store
+

@@ -1,0 +1,25 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug LatteBot: Python Debugger",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "launcher.py",
+      "console": "integratedTerminal",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "name": "Debug LatteBot with Coverage: Python Debugger",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "coverage",
+      "args": ["run", "--source=lattebot", "launcher.py"],
+      "console": "integratedTerminal",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}

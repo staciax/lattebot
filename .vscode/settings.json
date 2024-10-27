@@ -1,0 +1,25 @@
+{
+  // General
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/.ruff_cache": true,
+    "**/.mypy_cache": true,
+  },
+
+  // Python
+  "python.analysis.completeFunctionParens": false,
+  "[python]": {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit"
+      // "source.organizeImports": "explicit"
+    },
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  },
+  "ruff.lint.args": ["--unfixable=F401"],
+
+  // Mypy
+  "mypy.enabled": true,
+  "mypy.runUsingActiveInterpreter": true,
+  "mypy.configFile": "./pyproject.toml",
+}

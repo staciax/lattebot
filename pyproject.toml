@@ -1,0 +1,72 @@
+[project]
+name = "lattebot"
+version = "0.1.0"
+description = "discord bot"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+  "discord-py[speed]",
+  "jishaku>=2.6.0,<3.0.0",
+  "pydantic>2.0",
+  "pydantic-settings>=2.6.0,<3.0.0",
+  "uvloop>=0.21.0; sys_platform != 'win32'"
+]
+
+[tool.uv]
+dev-dependencies = [
+  "mypy>=1.13.0,<2.0.0",
+  "ruff>=0.7.1,<1.0.0",
+  "coverage>=7.6.4,<8.0.0",
+]
+
+[tool.uv.sources]
+discord-py = { git = "https://github.com/Rapptz/discord.py", rev = "master"}
+
+[tool.mypy]
+strict = true
+python_version = "3.13"
+exclude = [".venv"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+exclude = [
+  ".git",
+  ".ruff_cache",
+  '.mypy_cache',
+  ".venv",
+  ".vscode",
+]
+
+[tool.ruff.format]
+preview = true
+quote-style = "single"
+skip-magic-trailing-comma = false
+
+[tool.ruff.lint]
+preview = true
+select = [
+  "E",      # pycodestyle errors
+  "W",      # pycodestyle warnings
+  "F",      # pyflakes
+  "I",      # isort
+  "B",      # flake8-bugbear
+  "C4",     # flake8-comprehensions
+  "UP",     # pyupgrade
+  "ARG001", # unused arguments in functions
+]
+extend-select = [
+  "RUF100", # unused noqa
+  "RUF021", # parenthesize-chained-operators
+]
+
+ignore = [
+  "E501", # line too long, handled by black
+  "B904", # Allow raising exceptions without from e, for HTTPException
+]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+
+[tool.coverage.report]
+exclude_also = ["if TYPE_CHECKING:"]
