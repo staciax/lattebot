@@ -1,0 +1,34 @@
+services:
+  app:
+    restart: unless-stopped
+    container_name: lattebot
+    build:
+      context: .
+    platform: linux/amd64 # Patch for M1 Mac
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      - PROJECT_NAME=${PROJECT_NAME}
+      - APPLICATION_ID=${APPLICATION_ID}
+      - SUPPORT_GUILD_ID=${SUPPORT_GUILD_ID}
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+    tty: true
+    
+    develop:
+      watch:
+       # Sync the working directory with the `/app` directory in the container
+        - action: sync
+          path: .
+          target: /app
+          # Exclude the project virtual environment — it could be for a
+          # different platform in the container
+          ignore:
+            - .venv/
+
+        # Rebuild the image on changes to the `pyproject.toml`
+        - action: rebuild
+          path: ./pyproject.toml
+
+# TODO: public image
