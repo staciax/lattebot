@@ -66,7 +66,7 @@ class Jishaku(*STANDARD_FEATURES, name='jishaku'):  # type: ignore[misc]
     ) -> None:
         interaction.client.dispatch('app_command_error', interaction, error)
 
-    async def cog_check(self, ctx: commands.Context[LatteBot]):  # type: ignore
+    async def cog_check(self, ctx: commands.Context[LatteBot]) -> bool:
         if not await ctx.bot.is_owner(ctx.author):
             raise commands.NotOwner('You must own this bot to use Jishaku.')
         return True
@@ -132,8 +132,13 @@ class Jishaku(*STANDARD_FEATURES, name='jishaku'):  # type: ignore[misc]
             # TODO: ephemeral message
             await interface.send_to(ctx)
 
-    @Feature.Command(parent='jsk', name='py', aliases=['python'])
-    async def jsk_python(self, ctx: commands.Context[LatteBot], *, argument: codeblock_converter):  # type: ignore
+    @Feature.Command(parent='jsk', name='py', aliases=['python'])  # type: ignore
+    async def jsk_python(
+        self,
+        ctx: commands.Context[LatteBot],
+        *,
+        argument: codeblock_converter,  # type: ignore
+    ) -> None:
         """Direct evaluation of Python code."""
 
         if TYPE_CHECKING:
