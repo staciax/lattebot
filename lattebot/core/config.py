@@ -15,5 +15,9 @@ class Settings(BaseSettings):
     SUPPORT_GUILD_ID: int
     DISCORD_TOKEN: str
 
+    # Webhook
+    GUILD_WEBHOOK_ID: int
+    GUILD_WEBHOOK_TOKEN: str
+
 
 settings = Settings()  # type: ignore[call-arg]

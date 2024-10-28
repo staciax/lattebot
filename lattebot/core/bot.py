@@ -16,7 +16,10 @@ log = logging.getLogger('latte')
 
 description = "Hello, I'm latte bot, a bot made by stacia."
 
-INITIAL_EXTENSIONS = ('lattebot.cogs.jsk',)
+INITIAL_EXTENSIONS = (
+    'lattebot.cogs.events',
+    'lattebot.cogs.jsk',
+)
 
 
 class LatteBot(commands.AutoShardedBot):
