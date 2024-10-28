@@ -59,9 +59,9 @@ class LatteBot(commands.AutoShardedBot):
     async def on_ready(self) -> None:
         log.info(
             f'logged in as: {self.user} '
-            + (f'activity: {self.activity.name} ' if self.activity is not None else '')
+            + (f'activity: {self.activity.name} ' if self.activity else '')
             + f'servers: {len(self.guilds)} '
-            + f'users: {sum(guild.member_count for guild in self.guilds if guild.member_count is not None)}'
+            + f'users: {sum(guild.member_count for guild in self.guilds if guild.member_count)}'
         )
 
     @property

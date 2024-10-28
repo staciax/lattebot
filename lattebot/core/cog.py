@@ -75,7 +75,7 @@ class LatteCog(commands.Cog):
         error: app_commands.AppCommandError,
     ) -> None:
         command = interaction.command
-        if command is not None:
+        if command:
             log.error(
                 'exception in %s command on %s cog',
                 command.name,
