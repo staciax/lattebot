@@ -50,7 +50,7 @@ class Jishaku(*STANDARD_FEATURES, name='jishaku'):  # type: ignore[misc]
             callback=self.ctx_message_jishaku_python,
             guild_ids=[self.bot.support_guild_id],
         )
-        self.ctx_message_jsk_py.on_error = self.cog_app_command_error
+        self.ctx_message_jsk_py.error(self.cog_app_command_error)
         setattr(self.ctx_message_jsk_py, '__binding__', self)  # noqa: B010
 
     async def cog_load(self) -> None:
@@ -242,12 +242,12 @@ class Jishaku(*STANDARD_FEATURES, name='jishaku'):  # type: ignore[misc]
 
         content = content.removeprefix('_')
 
-        jsk = self.bot.get_command('jishaku py')
+        # jsk_py = self.bot.get_command('jishaku py')
         ctx = await Context.from_interaction(interaction)  # await self.bot.get_context(interaction)
         codeblock = codeblock_converter(content)
 
         try:
-            await jsk(ctx, argument=codeblock)  # type: ignore
+            await self.jsk_python(ctx, argument=codeblock)  # type: ignore
         except Exception as e:
             log.error(e)
             raise AppCommandError('Invalid Python code.') from e
