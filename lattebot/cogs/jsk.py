@@ -247,7 +247,7 @@ class Jishaku(*STANDARD_FEATURES, name='jishaku'):  # type: ignore[misc]
         codeblock = codeblock_converter(content)
 
         try:
-            await self.jsk_python(ctx, argument=codeblock)  # type: ignore
+            await self.jsk_python(ctx, argument=codeblock)
         except Exception as e:
             log.error(e)
             raise AppCommandError('Invalid Python code.') from e
