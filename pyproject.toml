@@ -70,4 +70,7 @@ ignore = [
 combine-as-imports = true
 
 [tool.coverage.report]
-exclude_also = ["if TYPE_CHECKING:"]
+precision = 2
+exclude_also = [
+  "if TYPE_CHECKING:",
+]
