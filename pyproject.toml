@@ -17,6 +17,7 @@ dev-dependencies = [
   "mypy>=1.13.0,<2.0.0",
   "ruff>=0.7.1,<1.0.0",
   "coverage>=7.6.4,<8.0.0",
+  "watchfiles>=0.24.0,<1.0.0",
 ]
 
 [tool.uv.sources]
