@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from .bot import LatteBot
 
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('lattebot.tree')
 
 
 class LatteTree(app_commands.CommandTree):

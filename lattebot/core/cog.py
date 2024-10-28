@@ -32,7 +32,7 @@ else:
     type ContextMenuCallback[T] = Callable[..., Coro[T]]
 
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('lattebot.cog')
 
 
 # https://github.com/InterStella0/stella_bot/blob/bf5f5632bcd88670df90be67b888c282c6e83d99/utils/cog.py#L28
