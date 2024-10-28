@@ -93,6 +93,9 @@ class Jishaku(*STANDARD_FEATURES, name='jishaku'):  # type: ignore[misc]
     @Feature.Command(parent='jsk', name='source', aliases=['src'])  # type: ignore
     async def jsk_source(self, ctx: commands.Context[LatteBot], *, command_name: str) -> None:
         """Display the source code for an app command."""
+
+        # NOTE: custom for support app command
+
         command = self.bot.get_command(command_name) or self.bot.tree.get_command(command_name)
         if not command:
             await ctx.send(f"Couldn't find command `{command_name}`.")
