@@ -189,14 +189,14 @@ class Jishaku(*STANDARD_FEATURES, name='jishaku'):  # type: ignore[misc]
         """
         await interaction.response.defer(ephemeral=True)
 
-        jsk = self.bot.get_command('jishaku' if sub else f'jishaku {sub}')
+        command = self.bot.get_command(f'jishaku {sub}' if sub else 'jishaku')
 
-        if not jsk:
+        if not command:
             raise AppCommandError(f"Couldn't find command `jishaku {sub}`.")
 
         ctx = await self.bot.get_context(interaction)
-        ctx.invoked_with = jsk.qualified_name
-        ctx.command = jsk
+        ctx.invoked_with = command.qualified_name
+        ctx.command = command
         if args:
             ctx.view = StringView(args)
         await self.bot.invoke(ctx)
