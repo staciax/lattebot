@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Any, Callable, Coroutine, Iterable, Self  # noqa: UP035
+from typing import TYPE_CHECKING, Any, Callable, Coroutine, Generic, Iterable, Self, Sequence, TypeVar  # noqa: UP035
 
 import discord
 from discord import Interaction, Member, Message, User, app_commands
@@ -13,14 +13,13 @@ __all__ = (
     'context_menu',
 )
 
+
 if TYPE_CHECKING:
     from discord.app_commands import ContextMenu, Group, locale_str
 
     from lattebot.core.bot import LatteBot
 
-type Coro[T] = Coroutine[Any, Any, T]
-
-if TYPE_CHECKING:
+    type Coro[T] = Coroutine[Any, Any, T]
     type Binding = Group | commands.Cog
     type ContextMenuCallback[GroupT: Binding] = (
         Callable[[GroupT, 'Interaction[LatteBot]', Member], Coro[Any]]
@@ -31,6 +30,9 @@ if TYPE_CHECKING:
 else:
     type ContextMenuCallback[T] = Callable[..., Coro[T]]
 
+
+Bot_ = commands.Bot | commands.AutoShardedBot
+BotT = TypeVar('BotT', bound=Bot_, default=Bot_)
 
 log = logging.getLogger('lattebot.cog')
 
@@ -60,7 +62,12 @@ def context_menu[T: Binding](
     return inner
 
 
-class LatteCog(commands.Cog):
+class Cog(commands.Cog, Generic[BotT]):
+    def __init__(self, bot: BotT) -> None:
+        self.bot = bot
+
+
+class LatteCog(Cog['LatteBot']):
     __cog_context_menus__: list[app_commands.ContextMenu]
 
     def get_context_menus(self) -> list[app_commands.ContextMenu]:
@@ -91,7 +98,7 @@ class LatteCog(commands.Cog):
         bot: LatteBot,  # type: ignore[override]
         override: bool,
         guild: discord.abc.Snowflake | None,
-        guilds: list[discord.abc.Snowflake],  # type: ignore[override]
+        guilds: Sequence[discord.abc.Snowflake],
     ) -> Self:
         await super()._inject(bot, override, guild, guilds)
 
