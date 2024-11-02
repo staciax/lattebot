@@ -14,5 +14,4 @@ if TYPE_CHECKING:
 log = logging.getLogger('lattebot.tree')
 
 
-class LatteTree(app_commands.CommandTree):
-    client: LatteBot
+class LatteTree(app_commands.CommandTree['LatteBot']): ...
