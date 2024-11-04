@@ -4,8 +4,8 @@ import logging
 from typing import TYPE_CHECKING
 
 import discord
-from discord.ext import commands
 
+from lattebot.core.cog import LatteCog
 from lattebot.core.config import settings
 
 if TYPE_CHECKING:
@@ -14,11 +14,8 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 
-class Event(commands.Cog, name='events'):
+class Event(LatteCog, name='events'):
     """Bot Events."""
-
-    def __init__(self, bot: LatteBot) -> None:
-        self.bot = bot
 
     @discord.utils.cached_property
     def webhook(self) -> discord.Webhook:
@@ -42,7 +39,7 @@ class Event(commands.Cog, name='events'):
 
         await self.webhook.send(embed=embed, silent=True)
 
-    @commands.Cog.listener('on_guild_join')
+    @LatteCog.listener('on_guild_join')
     async def on_latte_join(self, guild: discord.Guild) -> None:
         """Call when LatteBot joins a guild."""
         # TODO: Blacklist check
@@ -50,7 +47,7 @@ class Event(commands.Cog, name='events'):
         embed = discord.Embed(title='ᴊᴏɪɴᴇᴅ ꜱᴇʀᴠᴇʀ')
         await self.send_guild_stats(embed, guild)
 
-    @commands.Cog.listener('on_guild_remove')
+    @LatteCog.listener('on_guild_remove')
     async def on_latte_leave(self, guild: discord.Guild) -> None:
         """Call when LatteBot leaves a guild."""
         embed = discord.Embed(title='ʟᴇꜰᴛ ꜱᴇʀᴠᴇʀ')
