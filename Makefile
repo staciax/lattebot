@@ -20,7 +20,7 @@ dev: # Run the app with coverage
 .PHONY: report
 .SILENT: report
 report: # See the coverage report
-	$(python) -m coverage report --show-missing
+	$(python) -m coverage report
 
 .PHONY: lint
 .SILENT: lint

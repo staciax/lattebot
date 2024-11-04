@@ -101,5 +101,6 @@ combine-as-imports = true
 extend-generics = ["discord.app_commands.CommandTree"]
 
 [tool.coverage.report]
+show_missing = true
 precision = 2
 exclude_also = ["if TYPE_CHECKING:"]
