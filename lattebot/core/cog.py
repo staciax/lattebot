@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import logging
 from typing import TYPE_CHECKING, Any, Callable, Coroutine, Generic, Iterable, Self, Sequence, TypeVar  # noqa: UP035
 
@@ -124,10 +125,9 @@ class LatteCog(Cog['LatteBot']):
         # context menus in cog
         for method_name in dir(self):
             method = getattr(self, method_name)
-            if context_values := getattr(method, '__context_menu__', None):
-                if menu := context_values.get('context_menu_class'):
-                    bot.tree.remove_command(menu.name, type=menu.type)
-                    try:
-                        self.__cog_context_menus__.remove(menu)
-                    except ValueError:
-                        pass
+            if (context_values := getattr(method, '__context_menu__', None)) and (
+                menu := context_values.get('context_menu_class')
+            ):
+                bot.tree.remove_command(menu.name, type=menu.type)
+                with contextlib.suppress(ValueError):
+                    self.__cog_context_menus__.remove(menu)

@@ -58,10 +58,11 @@ class LatteBot(commands.AutoShardedBot):
 
     async def on_ready(self) -> None:
         log.info(
-            f'logged in as: {self.user} '
-            + (f'activity: {self.activity.name} ' if self.activity else '')
-            + f'servers: {len(self.guilds)} '
-            + f'users: {sum(guild.member_count for guild in self.guilds if guild.member_count)}'
+            'logged in as: %s activity: %s servers: %s users: %s',
+            str(self.user),
+            self.activity.name if self.activity else None,
+            len(self.guilds),
+            sum(guild.member_count for guild in self.guilds if guild.member_count),
         )
 
     @property
@@ -95,7 +96,7 @@ class LatteBot(commands.AutoShardedBot):
         try:
             await self.tree.sync(guild=discord.Object(id=self.support_guild_id))
         except Exception as e:
-            log.error(f'Failed to sync guild {self.support_guild_id}.', exc_info=e)
+            log.exception('Failed to sync guild %s.', self.support_guild_id, exc_info=e)
 
     async def cogs_load(self) -> None:
         await asyncio.gather(*[self.load_extension(extension) for extension in INITIAL_EXTENSIONS])
@@ -109,15 +110,15 @@ class LatteBot(commands.AutoShardedBot):
 
         await self.process_commands(message)
 
-    async def on_error(self, event_method: str, /, *args: Any, **kwargs: Any) -> None:
+    async def on_error(self, event_method: str, /, *_args: Any, **_kwargs: Any) -> None:
         log.error('Ignoring exception in %s', event_method)
 
     async def load_extension(self, name: str, *, package: str | None = None) -> None:
         try:
             await super().load_extension(name, package=package)
         except Exception as e:
-            log.error('failed to load extension %s', name, exc_info=e)
-            raise e
+            log.exception('failed to load extension %s', name, exc_info=e)
+            raise
         else:
             log.info('loaded extension %s', name)
 
@@ -125,8 +126,8 @@ class LatteBot(commands.AutoShardedBot):
         try:
             await super().unload_extension(name, package=package)
         except Exception as e:
-            log.error('failed to unload extension %s', name, exc_info=e)
-            raise e
+            log.exception('failed to unload extension %s', name, exc_info=e)
+            raise
         else:
             log.info('unloaded extension %s', name)
 
@@ -134,8 +135,8 @@ class LatteBot(commands.AutoShardedBot):
         try:
             await super().reload_extension(name, package=package)
         except Exception as e:
-            log.error('failed to reload extension %s', name, exc_info=e)
-            raise e
+            log.exception('failed to reload extension %s', name, exc_info=e)
+            raise
         else:
             log.info('reloaded extension %s', name)
 

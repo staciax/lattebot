@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import inspect
 import io
 import logging
@@ -11,7 +12,7 @@ from typing import TYPE_CHECKING, Any, Callable  # noqa: UP035
 
 import discord
 from discord import app_commands
-from discord.app_commands import AppCommandError, locale_str as _T
+from discord.app_commands import AppCommandError, locale_str as _T  # noqa: N812
 from discord.app_commands.checks import bot_has_permissions
 from discord.ext import commands
 from discord.ext.commands import Context
@@ -62,7 +63,9 @@ class Jishaku(*STANDARD_FEATURES, name='jishaku'):  # type: ignore[misc]
         await super().cog_unload()
 
     async def cog_app_command_error(
-        self, interaction: discord.Interaction[LatteBot], error: app_commands.AppCommandError
+        self,
+        interaction: discord.Interaction[LatteBot],
+        error: app_commands.AppCommandError,
     ) -> None:
         interaction.client.dispatch('app_command_error', interaction, error)
 
@@ -74,9 +77,9 @@ class Jishaku(*STANDARD_FEATURES, name='jishaku'):  # type: ignore[misc]
     async def interaction_check(self, interaction: discord.Interaction[LatteBot]) -> bool:
         if not await interaction.client.is_owner(interaction.user):
             raise AppCommandError('You must own this bot to use Jishaku.')
-        return super().interaction_check(interaction)  # type: ignore
+        return super().interaction_check(interaction)  # type: ignore[no-any-return]
 
-    @Feature.Command(name='jishaku', aliases=['jsk'], invoke_without_command=True, ignore_extra=False)  # type: ignore
+    @Feature.Command(name='jishaku', aliases=['jsk'], invoke_without_command=True, ignore_extra=False)  # type: ignore[arg-type]
     async def jsk(self, ctx: commands.Context[LatteBot]) -> None:
         """The Jishaku debug and diagnostic commands.
 
@@ -90,7 +93,7 @@ class Jishaku(*STANDARD_FEATURES, name='jishaku'):  # type: ignore[misc]
         )
         await ctx.send(embed=embed, silent=True)
 
-    @Feature.Command(parent='jsk', name='source', aliases=['src'])  # type: ignore
+    @Feature.Command(parent='jsk', name='source', aliases=['src'])  # type: ignore[arg-type, call-arg]
     async def jsk_source(self, ctx: commands.Context[LatteBot], *, command_name: str) -> None:
         """Display the source code for an app command."""
 
@@ -102,17 +105,15 @@ class Jishaku(*STANDARD_FEATURES, name='jishaku'):  # type: ignore[misc]
             return
 
         try:
-            source_lines, _ = inspect.getsourcelines(command.callback)  # type: ignore
+            source_lines, _ = inspect.getsourcelines(command.callback)  # type: ignore[union-attr]
         except (TypeError, OSError):
             await ctx.send(f'Was unable to retrieve the source for `{command}` for some reason.')
             return
 
         filename = 'source.py'
 
-        try:
-            filename = pathlib.Path(inspect.getfile(command.callback)).name  # type: ignore
-        except (TypeError, OSError):
-            pass
+        with contextlib.suppress(TypeError, OSError):
+            filename = pathlib.Path(inspect.getfile(command.callback)).name  # type: ignore[union-attr]
 
         # getsourcelines for some reason returns WITH line endings
         source_text = ''.join(source_lines)
@@ -135,31 +136,31 @@ class Jishaku(*STANDARD_FEATURES, name='jishaku'):  # type: ignore[misc]
             # TODO: ephemeral message
             await interface.send_to(ctx)
 
-    @Feature.Command(parent='jsk', name='py', aliases=['python'])  # type: ignore
+    @Feature.Command(parent='jsk', name='py', aliases=['python'])  # type: ignore[arg-type]
     async def jsk_python(
         self,
         ctx: commands.Context[LatteBot],
         *,
-        argument: codeblock_converter,  # type: ignore
+        argument: codeblock_converter,  # type: ignore[valid-type]
     ) -> None:
         """Direct evaluation of Python code."""
 
         if TYPE_CHECKING:
-            argument: Codeblock = argument  # type: ignore
+            argument: Codeblock = argument  # type: ignore[no-redef]  # noqa: PLW0127
 
         arg_dict = get_var_dict_from_ctx(ctx, '')
         arg_dict.update(get_var_dict_from_ctx(ctx, '_'))
-        arg_dict['_'] = self.last_result  # type: ignore
+        arg_dict['_'] = self.last_result  # type: ignore[has-type]
 
         scope = self.scope
 
         try:
             async with ReplResponseReactor(ctx.message):
                 with self.submit(ctx):
-                    executor = AsyncCodeExecutor(argument.content, scope, arg_dict=arg_dict)  # type: ignore
-                    async for send, result in AsyncSender(executor):  # type: ignore
-                        send: Callable[..., None]  # type: ignore
-                        result: Any  # type: ignore
+                    executor = AsyncCodeExecutor(argument.content, scope, arg_dict=arg_dict)  # type: ignore[attr-defined]
+                    async for send, result in AsyncSender(executor):  # type: ignore[arg-type, var-annotated]
+                        send: Callable[..., None]  # type: ignore[no-redef]
+                        result: Any  # type: ignore[no-redef]
 
                         if result is None:
                             continue
@@ -207,7 +208,7 @@ class Jishaku(*STANDARD_FEATURES, name='jishaku'):  # type: ignore[misc]
     @jishaku_app.autocomplete('sub')
     async def jishaku_app_autocomplete(
         self,
-        interaction: discord.Interaction[LatteBot],
+        _interaction: discord.Interaction[LatteBot],
         current: str,
     ) -> list[app_commands.Choice[str]]:
         sub_commands: list[str] = []
@@ -252,7 +253,7 @@ class Jishaku(*STANDARD_FEATURES, name='jishaku'):  # type: ignore[misc]
         try:
             await self.jsk_python(ctx, argument=codeblock)
         except Exception as e:
-            log.error(e)
+            log.exception('Jishaku Python command failed.', exc_info=e)
             raise AppCommandError('Invalid Python code.') from e
 
 

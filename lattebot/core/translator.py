@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from discord import Locale
 from discord.app_commands.translator import (
     Translator as _Translator,
     locale_str,
@@ -12,6 +11,7 @@ from discord.app_commands.translator import (
 __all__ = ('Translator',)
 
 if TYPE_CHECKING:
+    from discord import Locale
     from discord.app_commands import TranslationContext
 
     from .bot import LatteBot
