@@ -6,6 +6,9 @@
     "**/.mypy_cache": true,
   },
 
+  // Ruff
+  "ruff.lint.args": ["--unfixable=F401"],
+
   // Python
   "python.analysis.completeFunctionParens": false,
   "[python]": {
@@ -16,7 +19,6 @@
     },
     "editor.defaultFormatter": "charliermarsh.ruff"
   },
-  "ruff.lint.args": ["--unfixable=F401"],
 
   // Mypy
   "mypy.enabled": true,
