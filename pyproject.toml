@@ -9,7 +9,7 @@ dependencies = [
   "jishaku>=2.6.0,<3.0.0",
   "pydantic>2.0",
   "pydantic-settings>=2.6.1,<3.0.0",
-  "uvloop>=0.21.0; sys_platform != 'win32'"
+  "uvloop>=0.21.0; sys_platform != 'win32'",
 ]
 
 [tool.uv]
@@ -19,9 +19,10 @@ dev-dependencies = [
   "coverage>=7.6.4,<8.0.0",
   "watchfiles>=0.24.0,<1.0.0",
 ]
+# TODO: group dependencies PEP735
 
 [tool.uv.sources]
-discord-py = { git = "https://github.com/Rapptz/discord.py", rev = "master"}
+discord-py = { git = "https://github.com/Rapptz/discord.py", rev = "master" }
 
 [tool.mypy]
 strict = true
@@ -31,13 +32,7 @@ exclude = [".venv"]
 [tool.ruff]
 line-length = 120
 target-version = "py313"
-exclude = [
-  ".git",
-  ".ruff_cache",
-  '.mypy_cache',
-  ".venv",
-  ".vscode",
-]
+exclude = [".git", ".ruff_cache", '.mypy_cache', ".venv", ".vscode"]
 
 [tool.ruff.format]
 preview = true
@@ -47,34 +42,63 @@ skip-magic-trailing-comma = false
 [tool.ruff.lint]
 preview = true
 select = [
-  "E",      # pycodestyle errors
-  "W",      # pycodestyle warnings
-  "F",      # pyflakes
-  "I",      # isort
-  "B",      # flake8-bugbear
-  "C4",     # flake8-comprehensions
-  "UP",     # pyupgrade
-  "ARG001", # unused arguments in functions
-]
-extend-select = [
-  "RUF100", # unused noqa
-  "RUF021", # parenthesize-chained-operators
+  "E",  # pycodestyle errors
+  "W",  # pycodestyle warnings
+  "F",  # pyflakes
+  "I",  # isort
+  "B",  # flake8-bugbear
+  "C4", # flake8-comprehensions
+  "UP", # pyupgrade
+
+  "YTT",   # flake8-2020
+  "ANN",   # flake8-annotations
+  "ASYNC", # flake8-async
+  "S",     # flake8-bandit
+  "BLE",   # flake8-blind-except
+  "A",     # flake8-builtins
+  "COM",   # flake8-commas
+  "DTZ",   # flake8-datetimez
+  "T10",   # flake8-debugger
+  "FA",    # flake8-future-annotations
+  "ISC",   # flake8-implicit-str-concat
+  "ICN",   # flake8-import-conventions
+  "LOG",   # flake8-logging
+  "G",     # flake8-logging-format
+  "PIE",   # flake8-pie
+  "PYI",   # flake8-pyi
+  "RSE",   # flake8-raise 
+  "RET",   # flake8-return
+  "SIM",   # flake8-simplify
+  "TCH",   # flake8-type-checking
+  "ARG",   # flake8-unused-arguments
+  "PTH",   # flake8-use-pathlib
+
+  "N",    # pep8-naming
+  "PGH",  # pygrep-hooks
+  "PL",   # pylint
+  "TRY",  # tryceratops
+  "FLY",  # flynt
+  "PERF", # perflint
+  "FURB", # refurb
+
+  "RUF", # ruff-specific rules
+
+  # "TID",   # flake8-tidy-imports
+  # "PT",    # flake8-pytest-style 
 ]
 ignore = [
-  "E501", # line too long, handled by black
-  "B904", # Allow raising exceptions without from e, for HTTPException
+  "E501",    # line-too-long, handled by black
+  "COM812",  # trailing-comma-missing
+  "PLR6301", # no-self-use
+  "ANN401",  # any-type
 ]
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
 
 [tool.ruff.lint.pyflakes]
-extend-generics = [
-  "discord.app_commands.CommandTree",
-]
+extend-generics = ["discord.app_commands.CommandTree"]
 
 [tool.coverage.report]
 precision = 2
-exclude_also = [
-  "if TYPE_CHECKING:",
-]
+exclude_also = ["if TYPE_CHECKING:"]
