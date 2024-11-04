@@ -14,7 +14,7 @@ from lattebot.logging import setup_logging
 async def run_bot() -> None:
     async with LatteBot() as bot:
         try:
-            from autoreload import Reloader
+            from autoreload import Reloader  # noqa: PLC0415
 
             reloader = Reloader('lattebot/cogs')
             reloader.start(bot)
