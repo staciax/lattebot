@@ -66,6 +66,7 @@ select = [
   "G",     # flake8-logging-format
   "PIE",   # flake8-pie
   "PYI",   # flake8-pyi
+  "Q",     # flake8-quotes
   "RSE",   # flake8-raise 
   "RET",   # flake8-return
   "SIM",   # flake8-simplify
@@ -100,6 +101,9 @@ extend-generics = ["discord.app_commands.CommandTree"]
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "single"
 
 [tool.ruff.lint.flake8-type-checking]
 quote-annotations = true
