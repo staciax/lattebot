@@ -94,6 +94,7 @@ ignore = [
   "E501",    # line-too-long, handled by black
   "PLR6301", # no-self-use
   "TRY003",  # raise-vanilla-args
+  "ISC001",  # single-line-implicit-string-concatenation, conflicts with black
 ]
 
 [tool.ruff.lint.pyflakes]
