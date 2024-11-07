@@ -114,6 +114,16 @@ class LatteCog(Cog['LatteBot']):
         for method_name in dir(self):
             method = getattr(self, method_name)
             if context_values := getattr(method, '__context_menu__', None):
+                if isinstance(method, staticmethod):
+                    raise TypeError(
+                        f'Command in method {self.__class__.__name__}.{method_name!r} must not be staticmethod.'
+                    )
+
+                if method_name.startswith(('cog_', 'bot_')):
+                    raise TypeError(
+                        f'Commands or listeners must not start with cog_ or bot_ (in method {self.__class__.__name__}.{method_name})'
+                    )
+
                 menu = app_commands.ContextMenu(callback=method, **context_values)
                 menu.error(self.cog_app_command_error)
                 menu.__binding__ = self  # type: ignore[attr-defined]
