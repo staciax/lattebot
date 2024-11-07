@@ -145,6 +145,23 @@ class LatteCog(Cog['LatteBot']):
             if (context_values := getattr(method, '__context_menu__', None)) and (
                 menu := context_values.get('context_menu_class')
             ):
-                bot.tree.remove_command(menu.name, type=menu.type)
+                # if not isinstance(context_menu, app_commands.ContextMenu):
+                #     raise TypeError(
+                #         f'context_menu_class must be an instance of app_commands.ContextMenu, not {type(menu)}'
+                #     )
+
+                # NOTE: sure that context_menu is an instance of app_commands.ContextMenu
+                menu: app_commands.ContextMenu  # type: ignore[no-redef]
+
+                guild_ids = guild_ids or menu._guild_ids
+                if guild_ids is None:
+                    bot.tree.remove_command(menu.name, type=menu.type)
+                else:
+                    for guild_id in guild_ids:
+                        bot.tree.remove_command(
+                            menu.name,
+                            type=menu.type,
+                            guild=discord.Object(id=guild_id),
+                        )
                 with contextlib.suppress(ValueError):
                     self.__cog_context_menus__.remove(menu)
