@@ -12,14 +12,13 @@ dependencies = [
   "uvloop>=0.21.0; sys_platform != 'win32'",
 ]
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
   "mypy>=1.13.0,<2.0.0",
   "ruff>=0.7.2,<1.0.0",
   "coverage>=7.6.4,<8.0.0",
   "watchfiles>=0.24.0,<1.0.0",
 ]
-# TODO: group dependencies PEP735
 
 [tool.uv.sources]
 discord-py = { git = "https://github.com/Rapptz/discord.py", rev = "master" }
