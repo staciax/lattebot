@@ -72,11 +72,11 @@ class LatteCog(Cog['LatteBot']):
     __cog_context_menus__: list[app_commands.ContextMenu]
 
     def get_context_menus(self) -> list[app_commands.ContextMenu]:
-        """Get context menus in the cog.
+        """Get context menus that are defined inside this cog.
 
         Returns
         -------
-        List[discord.app_commands.ContextMenu]
+        list[app_commands.ContextMenu]
             A list of context menus that are defined inside this cog.
         """
         try:
