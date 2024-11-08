@@ -3,7 +3,7 @@
   "files.exclude": {
     "**/__pycache__": true,
     "**/.ruff_cache": true,
-    "**/.mypy_cache": true,
+    "**/.mypy_cache": true
   },
 
   // Ruff
@@ -19,9 +19,10 @@
     },
     "editor.defaultFormatter": "charliermarsh.ruff"
   },
+  "python.analysis.ignore": ["*"], // Disable Pylance
 
   // Mypy
   "mypy.enabled": true,
   "mypy.runUsingActiveInterpreter": true,
-  "mypy.configFile": "./pyproject.toml",
+  "mypy.configFile": "./pyproject.toml"
 }
