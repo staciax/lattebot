@@ -5,7 +5,7 @@ import logging
 from typing import TYPE_CHECKING, Any, Callable, Coroutine, Generic, Iterable, Self, Sequence, TypeVar  # noqa: UP035
 
 import discord
-from discord import Interaction, Member, Message, User, app_commands
+from discord import AppCommandContext, AppInstallationType, Interaction, Member, Message, User, app_commands
 from discord.ext import commands
 from discord.utils import MISSING
 
@@ -39,11 +39,13 @@ log = logging.getLogger('lattebot.cog')
 
 
 # https://github.com/InterStella0/stella_bot/blob/bf5f5632bcd88670df90be67b888c282c6e83d99/utils/cog.py#L28
-def context_menu[T: Binding](
+def context_menu[T: Binding](  # noqa: PLR0913
     *,
     name: str | locale_str = MISSING,
     nsfw: bool = False,
     guilds: list[discord.abc.Snowflake] = MISSING,
+    allowed_contexts: AppCommandContext | None = None,
+    allowed_installs: AppInstallationType | None = None,
     auto_locale_strings: bool = True,
     extras: dict[Any, Any] = MISSING,
 ) -> Callable[[ContextMenuCallback[T]], ContextMenu]:
@@ -55,6 +57,8 @@ def context_menu[T: Binding](
         func.__context_menu__ = {
             'name': name,
             'nsfw': nsfw,
+            'allowed_contexts': allowed_contexts,
+            'allowed_installs': allowed_installs,
             'auto_locale_strings': auto_locale_strings,
             'extras': extras,
         }
