@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import contextlib
+import inspect
 import logging
 from typing import TYPE_CHECKING, Any, Callable, Coroutine, Generic, Iterable, Self, Sequence, TypeVar  # noqa: UP035
 
@@ -16,7 +17,7 @@ __all__ = (
 
 
 if TYPE_CHECKING:
-    from discord.app_commands import ContextMenu, Group, locale_str
+    from discord.app_commands import Group, locale_str
 
     from lattebot.core.bot import LatteBot
 
@@ -39,7 +40,7 @@ log = logging.getLogger('lattebot.cog')
 
 
 # https://github.com/InterStella0/stella_bot/blob/bf5f5632bcd88670df90be67b888c282c6e83d99/utils/cog.py#L28
-def context_menu[T: Binding](  # noqa: PLR0913
+def context_menu[GroupT: Binding](  # noqa: PLR0913
     *,
     name: str | locale_str = MISSING,
     nsfw: bool = False,
@@ -48,13 +49,15 @@ def context_menu[T: Binding](  # noqa: PLR0913
     allowed_installs: AppInstallationType | None = None,
     auto_locale_strings: bool = True,
     extras: dict[Any, Any] = MISSING,
-) -> Callable[[ContextMenuCallback[T]], ContextMenu]:
-    def inner(func: Any) -> Any:
+) -> Callable[[ContextMenuCallback[GroupT]], ContextMenuCallback[GroupT]]:
+    def inner(coro: ContextMenuCallback[GroupT]) -> ContextMenuCallback[GroupT]:
         nonlocal name
-        func.__context_menu_guilds__ = guilds
+        if not inspect.iscoroutinefunction(coro):
+            raise TypeError('command function must be a coroutine function')
+        coro.__context_menu_guilds__ = guilds  # type: ignore[union-attr]
         if name is MISSING:
-            name = func.__name__
-        func.__context_menu__ = {
+            name = coro.__name__
+        coro.__context_menu__ = {  # type: ignore[union-attr]
             'name': name,
             'nsfw': nsfw,
             'allowed_contexts': allowed_contexts,
@@ -62,7 +65,7 @@ def context_menu[T: Binding](  # noqa: PLR0913
             'auto_locale_strings': auto_locale_strings,
             'extras': extras,
         }
-        return func
+        return coro
 
     return inner
 
