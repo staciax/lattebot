@@ -4,6 +4,7 @@ from typing import Any
 
 import aiohttp
 import discord
+from discord import MissingApplicationID
 from discord.ext import commands
 
 from .config import settings
@@ -74,6 +75,16 @@ class LatteBot(commands.AutoShardedBot):
     def support_guild_id(self) -> int:
         return settings.SUPPORT_GUILD_ID
         # return self.bot_app_info.guild_id or settings.SUPPORT_GUILD_ID
+
+    @property
+    def invite_url(self) -> str:
+        if not self.application_id:
+            raise MissingApplicationID
+        return discord.utils.oauth_url(
+            self.application_id,
+            scopes=('bot', 'applications.commands'),
+            permissions=discord.Permissions(settings.INVITE_PERMISSIONS),
+        )
 
     async def setup_hook(self) -> None:
         self.session = aiohttp.ClientSession()

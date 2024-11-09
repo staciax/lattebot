@@ -16,6 +16,7 @@ class Settings(EnvConfig):
     APPLICATION_ID: int
     SUPPORT_GUILD_ID: int
     DISCORD_TOKEN: str
+    INVITE_PERMISSIONS: int = 280576
 
     # Webhook
     GUILD_WEBHOOK_ID: int
