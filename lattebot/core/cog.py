@@ -152,13 +152,10 @@ class LatteCog(Cog['LatteBot']):
             if (context_values := getattr(method, '__context_menu__', None)) and (
                 menu := context_values.get('context_menu_class')
             ):
-                # if not isinstance(context_menu, app_commands.ContextMenu):
-                #     raise TypeError(
-                #         f'context_menu_class must be an instance of app_commands.ContextMenu, not {type(menu)}'
-                #     )
-
-                # NOTE: sure that context_menu is an instance of app_commands.ContextMenu
-                menu: app_commands.ContextMenu  # type: ignore[no-redef]
+                if not isinstance(context_menu, app_commands.ContextMenu):
+                    raise TypeError(
+                        f'context_menu_class must be an instance of app_commands.ContextMenu, not {type(menu)}'
+                    )
 
                 guild_ids = guild_ids or menu._guild_ids
                 if guild_ids is None:
