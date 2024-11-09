@@ -44,6 +44,27 @@ class AppCommand(BaseModel):
     options: dict[str, Option] | None = None
 
 
+def get_app_command_model(app_command: Command[Any, ..., Any] | Group) -> AppCommand:
+    return AppCommand(
+        name=app_command.name,
+        description=app_command.description,
+        options=(
+            {
+                param.name: Option(
+                    display_name=param.display_name,
+                    description=param.description,
+                    choices={str(choice.value): choice.name for choice in param.choices},
+                )
+                for param in app_command.parameters
+            }
+            if app_command.parameters
+            else None
+        )
+        if isinstance(app_command, Command)
+        else None,
+    )
+
+
 # TODO: unit test for update_app_command_model
 def update_app_command_model(model: AppCommand, update_model: AppCommand) -> AppCommand:
     """
@@ -81,27 +102,6 @@ def update_app_command_model(model: AppCommand, update_model: AppCommand) -> App
 
     # return AppCommand.model_copy(update=data1)
     return AppCommand.model_validate(data)  # NOTE: avoid pydantic serializer warnings
-
-
-def get_app_command_model(app_command: Command[Any, ..., Any] | Group) -> AppCommand:
-    return AppCommand(
-        name=app_command.name,
-        description=app_command.description,
-        options=(
-            {
-                param.name: Option(
-                    display_name=param.display_name,
-                    description=param.description,
-                    choices={str(choice.value): choice.name for choice in param.choices},
-                )
-                for param in app_command.parameters
-            }
-            if app_command.parameters
-            else None
-        )
-        if isinstance(app_command, Command)
-        else None,
-    )
 
 
 async def save_yaml(data: dict[str, Any], file: Path) -> None:
