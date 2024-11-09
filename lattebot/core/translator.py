@@ -138,7 +138,7 @@ class Translator(_Translator):
         if not locales:
             log.warning('no supported locales provided')
         self.default_locale = default_locale
-        self._locales = locales or ()
+        self._locales = {default_locale, *locales} if locales else {default_locale}
         self._localization: dict[str, dict[str, Any]] = {}  # TODO: defaultdict?
 
     @property
