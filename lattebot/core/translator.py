@@ -44,30 +44,29 @@ class AppCommand(BaseModel):
     options: dict[str, Option] | None = None
 
 
-def model_deep_update[M: BaseModel](model1: M, model2: M) -> M:
+def model_deep_update(model: AppCommand, update_model: AppCommand) -> AppCommand:
     """
-    Deep update model1 with model2
+    Updates the fields of an existing AppCommand model with the fields from another AppCommand model.
 
     Parameters
     ----------
-    model1 : pydantic.BaseModel
-        The model to update
-    model2 : pydantic.BaseModel
-        The model to update with
+    model : AppCommand
+        The original AppCommand model to be updated.
+    update_model : AppCommand
 
     Raises
     ------
     pydantic.ValidationError
-        If the updated model is invalid
+        If the updated model is invalid.
 
     Returns
     -------
-    pydantic.BaseModel
-        The updated model
+    AppCommand
+        A new AppCommand model with the updated fields.
     """
 
-    data1 = model1.model_dump()
-    data2 = model2.model_dump()
+    data = model.model_dump()
+    update_data = update_model.model_dump()
 
     def deep_update(data: dict[str, Any], update: dict[str, Any]) -> None:
         for k in set(update).intersection(data):
@@ -76,10 +75,10 @@ def model_deep_update[M: BaseModel](model1: M, model2: M) -> M:
             else:
                 data[k] = update[k]
 
-    deep_update(data1, data2)
+    deep_update(data, update_data)
 
-    return type(model1).model_validate(data1)
-    # return model1.model_copy(update=data1)
+    # return AppCommand.model_copy(update=data1)
+    return AppCommand.model_validate(data)  # NOTE: avoid pydantic serializer warnings
 
 
 def get_app_command_model(app_command: Command[Any, ..., Any] | Group) -> AppCommand:
