@@ -266,45 +266,53 @@ class Translator(_Translator):
     async def load_translations(self) -> None:
         bot_cogs = self.bot.cogs.values()
         for cog in bot_cogs:
-            cog_module = inspect.getmodule(cog)
-            if cog_module is None:
-                log.warning('No module found for cog %s', cog.qualified_name)
-                continue
-
-            cog_file_path = inspect.getfile(cog_module)
-            cog_directory = Path(cog_file_path).parent
-            locales_path = cog_directory / 'locales'
-
-            if not await locales_path.exists():
+            locales_path = await self._get_locales_path(cog)
+            if locales_path is None:
                 log.warning('No locales folder found for cog %s', cog.qualified_name)
                 continue
 
             for locale in self.locales:
-                is_default_locale = locale == self.default_locale
-                locale_filename = 'default' if is_default_locale else locale.value
-                locale_file = locales_path / f'{locale_filename}.yaml'
+                await self._process_locale(cog, locale, locales_path)
 
-                if not await locale_file.exists():
-                    if await (invalid_file := locale_file.with_suffix('.yml')).exists():
-                        # TODO: rename extension to .yaml
-                        # invalid_file.rename(locale_file)
-                        raise FileExistsError(
-                            f'Please use .yaml instead of .yml for locale files: {invalid_file.as_posix()!r}'
-                        )
-                    await locale_file.touch()
+    async def _get_locales_path(self, cog: Cog) -> Path | None:
+        cog_module = inspect.getmodule(cog)
+        if cog_module is None:
+            # TODO: raise an error?
+            log.warning('No module found for cog %s', cog.qualified_name)
+            return None
 
-                locale_data: dict[str, Any] = await read_yaml(locale_file)
+        cog_file_path = inspect.getfile(cog_module)
+        cog_directory = Path(cog_file_path).parent
+        locales_path = cog_directory / 'locales'
 
-                if is_default_locale or locale_data is None:
-                    commands_data = await self._get_app_commands_data(cog)
-                    self._update_localization(locale, commands_data)
+        if not await locales_path.exists():
+            log.warning('No locales folder found for cog %s', cog.qualified_name)
+            return None
+        return locales_path
 
-                    await save_yaml(commands_data, locale_file)
-                else:
-                    updated_commands_data = await self._update_app_commands_data(cog, locale_data)
-                    self._update_localization(locale, updated_commands_data)
+    async def _process_locale(self, cog: Cog, locale: Locale, locales_path: Path) -> None:
+        is_default_locale = locale == self.default_locale
+        locale_filename = 'default' if is_default_locale else locale.value
+        locale_file = locales_path / f'{locale_filename}.yaml'
 
-                    await save_yaml(updated_commands_data, locale_file)
+        # await self._ensure_locale_file(locale_file)
+        if not await locale_file.exists():
+            if await (invalid_file := locale_file.with_suffix('.yml')).exists():
+                # TODO: rename extension to .yaml
+                # invalid_file.rename(locale_file)
+                raise FileExistsError(f'Please use .yaml instead of .yml for locale files: {invalid_file.as_posix()!r}')
+            await locale_file.touch()
+
+        locale_data: dict[str, Any] = await read_yaml(locale_file)
+
+        if is_default_locale or locale_data is None:
+            commands_data = await self._get_app_commands_data(cog)
+            self._update_localization(locale, commands_data)
+            await save_yaml(commands_data, locale_file)
+        else:
+            updated_commands_data = await self._update_app_commands_data(cog, locale_data)
+            self._update_localization(locale, updated_commands_data)
+            await save_yaml(updated_commands_data, locale_file)
 
     async def _get_app_commands_data(self, cog: Cog, *, exclude_none: bool = True) -> dict[str, dict[str, Any]]:
         return {
