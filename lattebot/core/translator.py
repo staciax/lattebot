@@ -289,7 +289,7 @@ class Translator(_Translator):
                         # TODO: rename extension to .yaml
                         # invalid_file.rename(locale_file)
                         raise FileExistsError(
-                            f'Please use .yaml instead of .yml for locale files: {invalid_file.as_uri()!r}'
+                            f'Please use .yaml instead of .yml for locale files: {invalid_file.as_posix()!r}'
                         )
                     await locale_file_path.touch()
 
