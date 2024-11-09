@@ -149,7 +149,7 @@ class Translator(_Translator):
         log.info('unloaded')
 
     async def translate(self, string: locale_str, locale: Locale, context: TranslationContextTypes) -> str | None:
-        if locale == Locale.american_english:
+        if locale == self.default_locale:
             return None
 
         if locale not in self.locales:
