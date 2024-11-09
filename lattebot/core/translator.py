@@ -119,6 +119,10 @@ async def read_yaml(file: Path) -> Any:
 
 
 class Translator(_Translator):
+    if TYPE_CHECKING:
+        __latest_command: Command[Any, ..., Any] | Group | ContextMenu
+        __latest_parameter: Parameter
+
     def __init__(
         self,
         bot: LatteBot,
@@ -132,8 +136,6 @@ class Translator(_Translator):
         self.default_locale = default_locale
         self._locales = locales or ()
         self._localization: dict[str, dict[str, Any]] = {}  # TODO: defaultdict?
-        # self.__latest_command: Command | Group | ContextMenu  # type: ignore[type-arg]
-        # self.__latest_parameter: Parameter
 
     @property
     def locales(self) -> list[Locale]:
