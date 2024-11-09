@@ -269,7 +269,30 @@ class Translator(_Translator):
                 continue
 
             for locale in self.locales:
-                await self._process_locale(cog, locale, locales_path)
+                is_default_locale = locale == self.default_locale
+                locale_filename = 'default' if is_default_locale else locale.value
+                locale_file = locales_path / f'{locale_filename}.yaml'
+
+                if not await locale_file.exists():
+                    if await (invalid_file := locale_file.with_suffix('.yml')).exists():
+                        # TODO: rename extension to .yaml
+                        # invalid_file.rename(locale_file)
+                        raise FileExistsError(
+                            f'Please use .yaml instead of .yml for locale files: {invalid_file.as_posix()!r}'
+                        )
+                    await locale_file.touch()
+
+                locale_data: dict[str, Any] | None = await read_yaml(locale_file)
+
+                if is_default_locale or locale_data is None:
+                    commands_data = await self._get_app_commands_data(cog)
+                    self._update_localization(locale, commands_data)
+                    await save_yaml(commands_data, locale_file)
+                else:
+                    updated_commands_data = await self._update_app_commands_data(cog, locale_data)
+                    self._update_localization(locale, updated_commands_data)
+                    await save_yaml(updated_commands_data, locale_file)
+
         log.info('loaded translations')
 
     async def _get_locales_path(self, cog: Cog) -> Path | None:
@@ -286,30 +309,6 @@ class Translator(_Translator):
             log.warning('No locales folder found for cog %s', cog.qualified_name)
             return None
         return locales_path
-
-    async def _process_locale(self, cog: Cog, locale: Locale, locales_path: Path) -> None:
-        is_default_locale = locale == self.default_locale
-        locale_filename = 'default' if is_default_locale else locale.value
-        locale_file = locales_path / f'{locale_filename}.yaml'
-
-        # await self._ensure_locale_file(locale_file)
-        if not await locale_file.exists():
-            if await (invalid_file := locale_file.with_suffix('.yml')).exists():
-                # TODO: rename extension to .yaml
-                # invalid_file.rename(locale_file)
-                raise FileExistsError(f'Please use .yaml instead of .yml for locale files: {invalid_file.as_posix()!r}')
-            await locale_file.touch()
-
-        locale_data: dict[str, Any] = await read_yaml(locale_file)
-
-        if is_default_locale or locale_data is None:
-            commands_data = await self._get_app_commands_data(cog)
-            self._update_localization(locale, commands_data)
-            await save_yaml(commands_data, locale_file)
-        else:
-            updated_commands_data = await self._update_app_commands_data(cog, locale_data)
-            self._update_localization(locale, updated_commands_data)
-            await save_yaml(updated_commands_data, locale_file)
 
     async def _get_app_commands_data(self, cog: Cog, *, exclude_none: bool = True) -> dict[str, dict[str, Any]]:
         return {
