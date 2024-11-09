@@ -268,16 +268,15 @@ class Translator(_Translator):
         for cog in bot_cogs:
             locales_path = await self._get_locales_path(cog)
             if locales_path is None:
-                log.warning('No locales folder found for cog %s', cog.qualified_name)
                 continue
 
             for locale in self.locales:
                 await self._process_locale(cog, locale, locales_path)
+        log.info('loaded translations')
 
     async def _get_locales_path(self, cog: Cog) -> Path | None:
         cog_module = inspect.getmodule(cog)
         if cog_module is None:
-            # TODO: raise an error?
             log.warning('No module found for cog %s', cog.qualified_name)
             return None
 
@@ -286,7 +285,6 @@ class Translator(_Translator):
         locales_path = cog_directory / 'locales'
 
         if not await locales_path.exists():
-            log.warning('No locales folder found for cog %s', cog.qualified_name)
             return None
         return locales_path
 
