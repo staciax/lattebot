@@ -283,6 +283,7 @@ class Translator(_Translator):
         locales_path = cog_directory / 'locales'
 
         if not await locales_path.exists():
+            log.warning('No locales folder found for cog %s', cog.qualified_name)
             return None
         return locales_path
 
