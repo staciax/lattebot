@@ -21,7 +21,7 @@ class Event(LatteCog, name='events'):
     def webhook(self) -> discord.Webhook:
         wh_id, wh_token = settings.GUILD_WEBHOOK_ID, settings.GUILD_WEBHOOK_TOKEN
         hook = discord.Webhook.partial(wh_id, wh_token, session=self.bot.session)
-        return hook
+        return hook  # noqa: RET504
 
     async def send_guild_stats(self, embed: discord.Embed, guild: discord.Guild) -> None:
         """Send guild stats to webhook."""
