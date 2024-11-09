@@ -285,7 +285,7 @@ class Translator(_Translator):
                 locale_file = locales_path / f'{locale_filename}.yaml'
 
                 if not await locale_file.exists():
-                    if (invalid_file := locale_file.with_suffix('.yml')).exists():
+                    if await (invalid_file := locale_file.with_suffix('.yml')).exists():
                         # TODO: rename extension to .yaml
                         # invalid_file.rename(locale_file)
                         raise FileExistsError(
