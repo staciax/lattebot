@@ -123,11 +123,13 @@ class Translator(_Translator):
         self,
         bot: LatteBot,
         locales: tuple[Locale, ...] | None = None,
+        default_locale: Locale = Locale.american_english,
     ) -> None:
         super().__init__()
         self.bot = bot
         if not locales:
             log.warning('no supported locales provided')
+        self.default_locale = default_locale
         self._locales = locales or ()
         self._localization: dict[str, dict[str, Any]] = {}  # TODO: defaultdict?
         # self.__latest_command: Command | Group | ContextMenu  # type: ignore[type-arg]
@@ -262,7 +264,7 @@ class Translator(_Translator):
                 continue
 
             for locale in self.locales:
-                is_fallback = locale == Locale.american_english
+                is_fallback = locale == self.default_locale
                 filename = 'fallback' if is_fallback else locale.value
                 locale_file_path = locales_path / f'{filename}.yaml'
 
