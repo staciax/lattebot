@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, Any, Callable  # noqa: UP035
 
 import discord
 from discord import app_commands
-from discord.app_commands import AppCommandError, locale_str as _T  # noqa: N812
+from discord.app_commands import AppCommandError, locale_str as _
 from discord.app_commands.checks import bot_has_permissions
 from discord.ext import commands
 from discord.ext.commands import Context
@@ -47,7 +47,7 @@ class Jishaku(*STANDARD_FEATURES, name='jishaku'):  # type: ignore[misc]
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.ctx_message_jsk_py = app_commands.ContextMenu(
-            name=_T('Python'),
+            name=_('Python'),
             callback=self.ctx_message_jishaku_python,
             guild_ids=[self.bot.support_guild_id],
         )
@@ -172,9 +172,9 @@ class Jishaku(*STANDARD_FEATURES, name='jishaku'):  # type: ignore[misc]
         finally:
             scope.clear_intersection(arg_dict)
 
-    @app_commands.command(name=_T('jsk'))
-    @app_commands.describe(sub=_T('Sub command of jsk'), args=_T('Arguments of jsk'))
-    @app_commands.rename(sub=_T('sub'), args=_T('args'))
+    @app_commands.command(name=_('jsk'))
+    @app_commands.describe(sub=_('Sub command of jsk'), args=_('Arguments of jsk'))
+    @app_commands.rename(sub=_('sub'), args=_('args'))
     @app_commands.default_permissions(administrator=True)
     @bot_has_permissions(send_messages=True, embed_links=True, add_reactions=True)
     @owner_only()
