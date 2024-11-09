@@ -230,11 +230,23 @@ class Translator(_Translator):
                 'description',
             ])
 
-        elif tcl == TCL.choice_name and (
-            getattr(self, '__latest_command', None)
-            and getattr(self, '__latest_parameter', None)
+        elif (
+            tcl == TCL.choice_name
             and isinstance(translatable, Choice)
+            and hasattr(self, '__latest_command')
+            and hasattr(self, '__latest_parameter')
         ):
+            # validate latest command and parameter
+
+            if not isinstance(self.__latest_command, Command | Group | ContextMenu):
+                raise TypeError('latest command is not a discord.app_commands.Command')
+
+            if not isinstance(self.__latest_parameter, Parameter):
+                raise TypeError('latest parameter is not a discord.app_commands.Parameter')
+
+            # NOTE: Actually, we don't need to validate it because it's an instance of Command and Parameter already
+            # Just want to check it to make sure that it's an instance of Command and Parameter
+
             keys.extend([
                 self.__latest_command.qualified_name,
                 'options',
