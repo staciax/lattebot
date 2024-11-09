@@ -4,6 +4,8 @@ version = "0.1.0"
 description = "discord bot"
 readme = "README.md"
 requires-python = ">=3.13"
+authors = [{ name = "STACiA", email = "stacia.dev@gmail.com" }]
+license = { file = "LICENSE" }
 dependencies = [
   "discord-py[speed]",
   "jishaku>=2.6.0,<3.0.0",
