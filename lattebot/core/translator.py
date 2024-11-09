@@ -44,7 +44,8 @@ class AppCommand(BaseModel):
     options: dict[str, Option] | None = None
 
 
-def model_deep_update(model: AppCommand, update_model: AppCommand) -> AppCommand:
+# TODO: unit test for update_app_command_model
+def update_app_command_model(model: AppCommand, update_model: AppCommand) -> AppCommand:
     """
     Updates the fields of an existing AppCommand model with the fields from another AppCommand model.
 
@@ -53,6 +54,7 @@ def model_deep_update(model: AppCommand, update_model: AppCommand) -> AppCommand
     model : AppCommand
         The original AppCommand model to be updated.
     update_model : AppCommand
+        The AppCommand model containing the new values.
 
     Raises
     ------
@@ -313,7 +315,7 @@ class Translator(_Translator):
 
                         if key in data:
                             app_command_model_data = AppCommand.model_validate(data[key])
-                            update = model_deep_update(value, app_command_model_data)
+                            update = update_app_command_model(value, app_command_model_data)
                             commands_data_overwrite[key] = update.model_dump(exclude_none=True)
                         else:
                             commands_data_overwrite[key] = value.model_dump(exclude_none=True)
