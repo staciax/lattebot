@@ -261,17 +261,17 @@ class Translator(_Translator):
         return keys
 
     async def load_translations(self) -> None:  # noqa: PLR0912
-        cogs = self.bot.cogs.values()
-        for cog in cogs:
-            module = inspect.getmodule(cog)
+        bot_cogs = self.bot.cogs.values()
+        for cog in bot_cogs:
+            cog_module = inspect.getmodule(cog)
 
-            if module is None:
+            if cog_module is None:
                 raise ImportError('No module found for cog')
 
-            cog_file = inspect.getfile(module)
+            cog_file_path = inspect.getfile(cog_module)
             # print('cog_file', cog_file)
-            cog_path = Path(cog_file).parent
-            locales_path = cog_path / 'locales'
+            cog_directory = Path(cog_file_path).parent
+            locales_path = cog_directory / 'locales'
 
             if not await locales_path.exists():
                 # print(cog.qualified_name, locales_path, cog_path)
@@ -279,53 +279,60 @@ class Translator(_Translator):
                 continue
 
             for locale in self.locales:
-                is_fallback = locale == self.default_locale
-                filename = 'fallback' if is_fallback else locale.value
-                locale_file_path = locales_path / f'{filename}.yaml'
+                is_default_locale = locale == self.default_locale
+                locale_filename = 'default' if is_default_locale else locale.value
+                locale_file = locales_path / f'{locale_filename}.yaml'
 
                 # print(locale_file.as_uri())
 
-                if not await locale_file_path.exists():
-                    if (invalid_file := locale_file_path.with_suffix('.yml')).exists():
+                if not await locale_file.exists():
+                    if (invalid_file := locale_file.with_suffix('.yml')).exists():
                         # TODO: rename extension to .yaml
                         # invalid_file.rename(locale_file)
                         raise FileExistsError(
                             f'Please use .yaml instead of .yml for locale files: {invalid_file.as_posix()!r}'
                         )
-                    await locale_file_path.touch()
+                    await locale_file.touch()
 
-                data: dict[str, Any] = await read_yaml(locale_file_path)
+                locale_data: dict[str, Any] = await read_yaml(locale_file)
 
-                if is_fallback or data is None:
-                    commands_data = {
+                if is_default_locale or locale_data is None:
+                    app_commands_data = {
                         app_command.qualified_name: get_app_command_model(app_command).model_dump(exclude_none=True)
                         for app_command in cog.walk_app_commands()
                     }
-                    await save_yaml(commands_data, locale_file_path)
+                    await save_yaml(app_commands_data, locale_file)
 
                     if locale.value not in self._localization:
-                        self._localization[locale.value] = commands_data
+                        self._localization[locale.value] = app_commands_data
                     else:
-                        self._localization[locale.value].update(commands_data)
+                        self._localization[locale.value].update(app_commands_data)
                 else:
-                    commands_data_overwrite = {}
+                    updated_app_commands_data = {}
                     for app_command in cog.walk_app_commands():
-                        key = app_command.qualified_name
-                        value = get_app_command_model(app_command)
+                        app_command_name = app_command.qualified_name
+                        app_command_model = get_app_command_model(app_command)
 
-                        if key in data:
-                            app_command_model_data = AppCommand.model_validate(data[key])
-                            update = update_app_command_model(value, app_command_model_data)
-                            commands_data_overwrite[key] = update.model_dump(exclude_none=True)
+                        if app_command_name in locale_data:
+                            app_command_model_update = AppCommand.model_validate(locale_data[app_command_name])
+                            updated_app_command_model = update_app_command_model(
+                                app_command_model,
+                                app_command_model_update,
+                            )
+                            updated_app_commands_data[app_command_name] = updated_app_command_model.model_dump(
+                                exclude_none=True
+                            )
                         else:
-                            commands_data_overwrite[key] = value.model_dump(exclude_none=True)
+                            updated_app_commands_data[app_command_name] = app_command_model.model_dump(
+                                exclude_none=True
+                            )
 
                     if locale.value not in self._localization:
-                        self._localization[locale.value] = commands_data_overwrite
+                        self._localization[locale.value] = updated_app_commands_data
                     else:
-                        self._localization[locale.value].update(commands_data_overwrite)
+                        self._localization[locale.value].update(updated_app_commands_data)
 
-                    await save_yaml(commands_data_overwrite, locale_file_path)
+                    await save_yaml(updated_app_commands_data, locale_file)
 
     def clear(self) -> None:
         self._localization.clear()
