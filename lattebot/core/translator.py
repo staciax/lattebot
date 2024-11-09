@@ -21,8 +21,6 @@ from pydantic import BaseModel
 __all__ = ('Translator',)
 
 if TYPE_CHECKING:
-    from types import ModuleType
-
     from discord.app_commands.translator import (
         TranslationContextTypes,
     )
