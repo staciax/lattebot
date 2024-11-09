@@ -99,6 +99,9 @@ class LatteBot(commands.AutoShardedBot):
         # await self.tree_sync()
 
     async def tree_sync(self, guild_only: bool = False) -> None:
+        # load translations before syncing
+        await self.translator.load_translations()
+
         # tree sync application commands
         if not guild_only:
             await self.tree.sync()
@@ -108,6 +111,9 @@ class LatteBot(commands.AutoShardedBot):
             await self.tree.sync(guild=discord.Object(id=self.support_guild_id))
         except Exception as e:
             log.exception('Failed to sync guild %s.', self.support_guild_id, exc_info=e)
+
+        # clear
+        self.translator.clear()
 
     async def cogs_load(self) -> None:
         await asyncio.gather(*[self.load_extension(extension) for extension in INITIAL_EXTENSIONS])
