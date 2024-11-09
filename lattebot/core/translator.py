@@ -4,10 +4,10 @@ import contextlib
 import inspect
 import logging
 from functools import reduce
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import yaml
+from anyio import Path
 from discord import Locale
 from discord.app_commands.commands import Command, ContextMenu, Group, Parameter
 from discord.app_commands.models import Choice
@@ -103,17 +103,19 @@ def get_app_command_model(app_command: Command[Any, ..., Any] | Group) -> AppCom
     )
 
 
-def save_yaml(data: dict[str, Any], file: Path) -> None:
-    yaml_text = yaml.dump(data, indent=4, allow_unicode=True, sort_keys=False)
-    file.write_text(yaml_text)
+async def save_yaml(data: dict[str, Any], file: Path) -> None:
+    async with await file.open('w', encoding='utf-8') as f:
+        yaml_text = yaml.dump(data, indent=4, allow_unicode=True, sort_keys=False)
+        await f.write(yaml_text)
 
 
-def read_yaml(file: Path) -> Any:
-    yaml_text = file.read_text(encoding='utf-8')
-    return yaml.safe_load(yaml_text)
+async def read_yaml(file: Path) -> Any:
+    async with await file.open('r', encoding='utf-8') as f:
+        yaml_text = await f.read()
+        return yaml.safe_load(yaml_text)
 
 
-# TODO: async read_yaml, save_yaml (aiofiles or anyio)
+# NOTE: or aiofiles?
 
 
 class Translator(_Translator):
@@ -254,7 +256,7 @@ class Translator(_Translator):
             cog_path = Path(cog_file).parent
             locales_path = cog_path / 'locales'
 
-            if not locales_path.exists():
+            if not await locales_path.exists():
                 # print(cog.qualified_name, locales_path, cog_path)
                 log.warning(f'No locales folder found for cog {cog.qualified_name}')  # noqa: G004
                 continue
@@ -266,23 +268,23 @@ class Translator(_Translator):
 
                 # print(locale_file.as_uri())
 
-                if not locale_file_path.exists():
+                if not await locale_file_path.exists():
                     if (invalid_file := locale_file_path.with_suffix('.yml')).exists():
                         # TODO: rename extension to .yaml
                         # invalid_file.rename(locale_file)
                         raise FileExistsError(
                             f'Please use .yaml instead of .yml for locale files: {invalid_file.as_uri()!r}'
                         )
-                    locale_file_path.touch()
+                    await locale_file_path.touch()
 
-                data: dict[str, Any] = read_yaml(locale_file_path)
+                data: dict[str, Any] = await read_yaml(locale_file_path)
 
                 if is_fallback or data is None:
                     commands_data = {
                         app_command.qualified_name: get_app_command_model(app_command).model_dump(exclude_none=True)
                         for app_command in cog.walk_app_commands()
                     }
-                    save_yaml(commands_data, locale_file_path)
+                    await save_yaml(commands_data, locale_file_path)
 
                     if locale.value not in self._localization:
                         self._localization[locale.value] = commands_data
@@ -306,7 +308,7 @@ class Translator(_Translator):
                     else:
                         self._localization[locale.value].update(commands_data_overwrite)
 
-                    save_yaml(commands_data_overwrite, locale_file_path)
+                    await save_yaml(commands_data_overwrite, locale_file_path)
 
     def clear(self) -> None:
         self._localization.clear()

@@ -317,6 +317,7 @@ name = "lattebot"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "anyio" },
     { name = "discord-py", extra = ["speed"] },
     { name = "jishaku" },
     { name = "pydantic" },
@@ -336,6 +337,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "anyio", specifier = ">=4.6.2.post1" },
     { name = "discord-py", extras = ["speed"], git = "https://github.com/Rapptz/discord.py?rev=master" },
     { name = "jishaku", specifier = ">=2.6.0,<3.0.0" },
     { name = "pydantic", specifier = ">2.0" },
