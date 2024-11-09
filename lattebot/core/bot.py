@@ -78,7 +78,7 @@ class LatteBot(commands.AutoShardedBot):
     async def setup_hook(self) -> None:
         self.session = aiohttp.ClientSession()
 
-        self.translator = Translator(self)
+        self.translator = Translator(self, (discord.Locale.thai,))
         await self.tree.set_translator(self.translator)
 
         self.bot_app_info = await self.application_info()
