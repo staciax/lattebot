@@ -6,7 +6,6 @@ import logging
 from functools import reduce
 from typing import TYPE_CHECKING, Any
 
-import yaml
 from anyio import Path
 from discord import Locale
 from discord.app_commands.commands import Command, ContextMenu, Group, Parameter
@@ -17,6 +16,8 @@ from discord.app_commands.translator import (
     locale_str,
 )
 from pydantic import BaseModel
+
+from lattebot.utils import read_yaml, save_yaml
 
 __all__ = ('Translator',)
 
@@ -115,44 +116,6 @@ def update_app_command_model(model: AppCommand, update_model: AppCommand) -> App
 
     # return AppCommand.model_copy(update=data1)
     return AppCommand.model_validate(data)  # NOTE: avoid pydantic serializer warnings
-
-
-async def save_yaml(data: dict[str, Any], file: Path) -> None:
-    """
-    Save a dictionary to a YAML file.
-
-    Parameters
-    ----------
-    data : dict[str, Any]
-        The dictionary data to save.
-    file : anyio.Path
-        The file path where the YAML content will be written.
-    """
-    async with await file.open('w', encoding='utf-8') as f:
-        yaml_text = yaml.dump(data, indent=4, allow_unicode=True, sort_keys=False)
-        await f.write(yaml_text)
-
-
-async def read_yaml(file: Path) -> Any:
-    """
-    Read a YAML file and returns its content.
-
-    Parameters
-    ----------
-    file : anyio.Path
-        The file path to read the YAML content from.
-
-    Returns
-    -------
-    Any
-        The content of the YAML file.
-    """
-    async with await file.open('r', encoding='utf-8') as f:
-        yaml_text = await f.read()
-        return yaml.safe_load(yaml_text)
-
-
-# NOTE: or aiofiles?
 
 
 class Translator(_Translator):
