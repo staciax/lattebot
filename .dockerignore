@@ -20,6 +20,7 @@
 **/Dockerfile*
 **/.mypy_cache
 **/.ruff_cache
+**/.pytest_cache
 **/logs
 .coverage
 LICENSE

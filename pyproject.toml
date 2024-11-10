@@ -23,6 +23,8 @@ dev = [
   "coverage>=7.6.4,<8.0.0",
   "watchfiles>=0.24.0,<1.0.0",
   "types-pyyaml>=6.0.12.20240917,<7.0.0",
+  "pytest>=8.3.3,<9.0.0",
+  "pytest-cov>=6.0.0,<7.0.0",
 ]
 
 [tool.uv.sources]
@@ -36,7 +38,7 @@ exclude = [".venv"]
 [tool.ruff]
 line-length = 120
 target-version = "py313"
-exclude = [".git", ".ruff_cache", '.mypy_cache', ".venv", ".vscode"]
+exclude = [".git", ".ruff_cache", '.mypy_cache', ".pytest_cache", ".venv", ".vscode"]
 
 [tool.ruff.format]
 preview = true
@@ -71,6 +73,7 @@ select = [
   "G",     # flake8-logging-format
   "PIE",   # flake8-pie
   "PYI",   # flake8-pyi
+  "PT",    # flake8-pytest-style
   "Q",     # flake8-quotes
   "RSE",   # flake8-raise 
   "RET",   # flake8-return
@@ -90,7 +93,6 @@ select = [
 
   # maybe enable later
   # "TID",   # flake8-tidy-imports
-  # "PT",    # flake8-pytest-style 
   # "ICN",   # flake8-import-conventions
 ]
 ignore = [
@@ -130,9 +132,17 @@ runtime-evaluated-base-classes = ["pydantic.BaseModel"]
 ignore-variadic-names = true
 
 [tool.ruff.lint.per-file-ignores]
-"lattebot/logging.py" = ["A005"]
+"lattebot/logging.py" = [
+  "A005", # builtin-module-shadowing, allowed filename logging.py
+]
+"lattebot/tests/**/*.py" = [
+  "S101", # assert, allowed in tests 
+]
 
 [tool.coverage.report]
 show_missing = true
 precision = 2
 exclude_also = ["if TYPE_CHECKING:"]
+
+[tool.pytest.ini_options]
+addopts = "-vv --showlocals --tb=short --strict -p no:warnings --cov=lattebot --cov-append"
