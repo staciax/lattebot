@@ -46,6 +46,19 @@ class AppCommand(BaseModel):
 
 
 def get_app_command_model(app_command: Command[Any, ..., Any] | Group) -> AppCommand:
+    """
+    Convert an application command or group into an AppCommand model.
+
+    Parameters
+    ----------
+    app_command : discord.app_commands.Command[Any, ..., Any] | discord.app_commands.Group
+        The application command or group to convert.
+
+    Returns
+    -------
+    AppCommand
+        The converted AppCommand model.
+    """
     return AppCommand(
         name=app_command.name,
         description=app_command.description,
@@ -69,7 +82,7 @@ def get_app_command_model(app_command: Command[Any, ..., Any] | Group) -> AppCom
 # TODO: unit test for update_app_command_model
 def update_app_command_model(model: AppCommand, update_model: AppCommand) -> AppCommand:
     """
-    Updates the fields of an existing AppCommand model with the fields from another AppCommand model.
+    Update the fields of an existing AppCommand model with the fields from another AppCommand model.
 
     Parameters
     ----------
@@ -88,7 +101,6 @@ def update_app_command_model(model: AppCommand, update_model: AppCommand) -> App
     AppCommand
         A new AppCommand model with the updated fields.
     """
-
     data = model.model_dump()
     update_data = update_model.model_dump()
 
@@ -106,12 +118,35 @@ def update_app_command_model(model: AppCommand, update_model: AppCommand) -> App
 
 
 async def save_yaml(data: dict[str, Any], file: Path) -> None:
+    """
+    Save a dictionary to a YAML file.
+
+    Parameters
+    ----------
+    data : dict[str, Any]
+        The dictionary data to save.
+    file : anyio.Path
+        The file path where the YAML content will be written.
+    """
     async with await file.open('w', encoding='utf-8') as f:
         yaml_text = yaml.dump(data, indent=4, allow_unicode=True, sort_keys=False)
         await f.write(yaml_text)
 
 
 async def read_yaml(file: Path) -> Any:
+    """
+    Read a YAML file and returns its content.
+
+    Parameters
+    ----------
+    file : anyio.Path
+        The file path to read the YAML content from.
+
+    Returns
+    -------
+    Any
+        The content of the YAML file.
+    """
     async with await file.open('r', encoding='utf-8') as f:
         yaml_text = await f.read()
         return yaml.safe_load(yaml_text)
