@@ -158,7 +158,7 @@ class Translator(_Translator):
 
         tcl = context.location
 
-        if tcl != TCL.other:
+        if tcl == TCL.other:
             # TODO: handle other types
             return None
 
