@@ -54,6 +54,7 @@ select = [
   "C4", # flake8-comprehensions
   "UP", # pyupgrade
   "N",  # pep8-naming
+  "D",  # pydocstyle 
 
   "YTT",   # flake8-2020
   "ANN",   # flake8-annotations
@@ -95,6 +96,14 @@ select = [
 ignore = [
   "ANN401",  # any-type
   "COM812",  # trailing-comma-missing
+  "D100",    # undocumented-public-module
+  "D101",    # undocumented-public-class
+  "D102",    # undocumented-public-method
+  "D103",    # undocumented-public-function
+  "D104",    # undocumented-public-package
+  "D105",    # undocumented-magic-method
+  "D106",    # undocumented-public-nested-class
+  "D107",    # undocumented-public-init
   "E501",    # line-too-long, handled by black
   "PLR6301", # no-self-use
   "TRY003",  # raise-vanilla-args
@@ -103,6 +112,9 @@ ignore = [
 
 [tool.ruff.lint.pyflakes]
 extend-generics = ["discord.app_commands.CommandTree"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
