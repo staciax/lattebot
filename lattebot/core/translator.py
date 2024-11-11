@@ -102,20 +102,20 @@ def update_app_command_model(model: AppCommand, update_model: AppCommand) -> App
     AppCommand
         A new AppCommand model with the updated fields.
     """
-    data = model.model_dump()
-    update_data = update_model.model_dump()
+    original_data = model.model_dump()
+    new_data = update_model.model_dump()
 
     def deep_update(data: dict[str, Any], update: dict[str, Any]) -> None:
-        for k in set(update).intersection(data):
-            if isinstance(data[k], dict):
-                deep_update(data[k], update[k])
+        for key in set(update).intersection(data):
+            if isinstance(data[key], dict):
+                deep_update(data[key], update[key])
             else:
-                data[k] = update[k]
+                data[key] = update[key]
 
-    deep_update(data, update_data)
+    deep_update(original_data, new_data)
 
     # return AppCommand.model_copy(update=data1)
-    return AppCommand.model_validate(data)  # NOTE: avoid pydantic serializer warnings
+    return AppCommand.model_validate(original_data)  # NOTE: avoid pydantic serializer warnings
 
 
 class Translator(_Translator):
@@ -134,7 +134,7 @@ class Translator(_Translator):
             log.warning('no supported locales provided')
         self.default_locale = default_locale
         self._locales = {default_locale, *locales} if locales else {default_locale}
-        self._localization: dict[str, dict[str, Any]] = {}  # TODO: defaultdict?
+        self._translations: dict[str, dict[str, Any]] = {}  # TODO: defaultdict?
 
     @property
     def locales(self) -> list[Locale]:
@@ -159,7 +159,7 @@ class Translator(_Translator):
             # TODO: handle other types
             return None
 
-        keys = self._get_localization_keys(tcl, context.data)
+        keys = self._get_translation_keys(tcl, context.data)
 
         if not keys:
             log.warning(
@@ -171,14 +171,14 @@ class Translator(_Translator):
             )
             return None
 
-        locale_localization = self._localization.get(locale.value)
+        locale_translations = self._translations.get(locale.value)
 
-        if not locale_localization:
+        if not locale_translations:
             return None
 
-        locale_string = self.get_string_by_keys(locale_localization, keys)
+        translated_string = self.get_string_by_keys(locale_translations, keys)
 
-        if locale_string is None:
+        if translated_string is None:
             log.warning(
                 'not found: %s locale: %s tcl: %s type: %s',
                 string.message,
@@ -187,12 +187,12 @@ class Translator(_Translator):
                 type(context.data).__qualname__,
             )
 
-        return locale_string
+        return translated_string
 
-    def get_string_by_keys(self, localization_data: dict[str, Any], keys: list[str]) -> str | None:
+    def get_string_by_keys(self, translation_data: dict[str, Any], keys: list[str]) -> str | None:
         value: str | dict[str, Any] | None = None
         with contextlib.suppress(KeyError, TypeError):
-            value = reduce(lambda d, k: d[k], keys, localization_data)
+            value = reduce(lambda d, k: d[k], keys, translation_data)
 
         if value is None:
             log.error('failed to get value by keys: %s', keys)
@@ -204,7 +204,7 @@ class Translator(_Translator):
 
         return value
 
-    def _get_localization_keys(self, tcl: TCL, translatable: Translatable) -> list[str]:
+    def _get_translation_keys(self, tcl: TCL, translatable: Translatable) -> list[str]:
         keys = []
 
         if tcl in {TCL.command_name, TCL.group_name} and isinstance(translatable, Command | Group | ContextMenu):
@@ -268,11 +268,11 @@ class Translator(_Translator):
 
                 if is_default_locale or locale_data is None:
                     commands_data = await self._get_app_commands_data(cog)
-                    self._update_localization(locale, commands_data)
+                    self._update_translations(locale, commands_data)
                     await save_yaml(commands_data, locale_file)
                 else:
                     updated_commands_data = await self._update_app_commands_data(cog, locale_data)
-                    self._update_localization(locale, updated_commands_data)
+                    self._update_translations(locale, updated_commands_data)
                     await save_yaml(updated_commands_data, locale_file)
 
         log.info('loaded translations')
@@ -315,14 +315,14 @@ class Translator(_Translator):
                 updated_commands_data[command_name] = command_model.model_dump(exclude_none=True)
         return updated_commands_data
 
-    def _update_localization(self, locale: Locale, commands_data: dict[str, Any]) -> None:
-        if locale.value not in self._localization:
-            self._localization[locale.value] = commands_data
+    def _update_translations(self, locale: Locale, commands_data: dict[str, Any]) -> None:
+        if locale.value not in self._translations:
+            self._translations[locale.value] = commands_data
         else:
-            self._localization[locale.value].update(commands_data)
+            self._translations[locale.value].update(commands_data)
 
     def clear(self) -> None:
-        self._localization.clear()
+        self._translations.clear()
         with contextlib.suppress(AttributeError):
             del self.__latest_command
             del self.__latest_parameter
