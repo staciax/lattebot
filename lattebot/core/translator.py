@@ -305,7 +305,9 @@ class TextTranslator:
     def translate(self, string: locale_str, locale: Locale, _context: TranslationContextTypes | None = None) -> str:
         locale_code = locale.value
 
-        translations = self._translations.get(locale_code) or self._translations.get(locale_code)
+        translations = self._translations.get(locale_code) or self._translations.get(
+            self.translator.default_locale.value
+        )
 
         if not translations:
             log.warning('No text translations available for locale "%s".', locale.value)
