@@ -382,7 +382,6 @@ class Translator(_Translator):
         for cog in bot_cogs:
             locales_path = await self._get_cog_locales_path(cog)
             if locales_path is None:
-                log.warning('No locales folder found for cog %s', cog.qualified_name)
                 continue
 
             for locale in self.locales:
@@ -402,9 +401,7 @@ class Translator(_Translator):
     async def translate(self, string: locale_str, locale: Locale, context: TranslationContextTypes) -> str | None: ...
 
     async def translate(self, string: locale_str, locale: Locale, context: TranslationContextTypes) -> str | None:
-        tcl = context.location
-
-        if tcl == TranslationContextLocation.other:
+        if context.location == TranslationContextLocation.other:
             return self.text_translator.translate(string, locale, context)
 
         return await self.app_command_translator.translate(string, locale, context)
