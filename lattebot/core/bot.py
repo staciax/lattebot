@@ -28,6 +28,7 @@ class LatteBot(commands.AutoShardedBot):
     user: discord.ClientUser
     bot_app_info: discord.AppInfo
     tree: LatteTree  # type: ignore[assignment]
+    translator: Translator
 
     def __init__(self) -> None:
         # intents
@@ -89,7 +90,11 @@ class LatteBot(commands.AutoShardedBot):
     async def setup_hook(self) -> None:
         self.session = aiohttp.ClientSession()
 
-        self.translator = Translator(self, (discord.Locale.thai,))
+        self.translator = Translator(
+            self,
+            locales=(discord.Locale.thai,),
+            default_locale=discord.Locale.american_english,
+        )
         await self.tree.set_translator(self.translator)
 
         self.bot_app_info = await self.application_info()
@@ -99,9 +104,6 @@ class LatteBot(commands.AutoShardedBot):
         # await self.tree_sync()
 
     async def tree_sync(self, guild_only: bool = False) -> None:
-        # load translations before syncing
-        await self.translator.load_translations()
-
         # tree sync application commands
         if not guild_only:
             await self.tree.sync()
@@ -111,9 +113,6 @@ class LatteBot(commands.AutoShardedBot):
             await self.tree.sync(guild=discord.Object(id=self.support_guild_id))
         except Exception as e:
             log.exception('Failed to sync guild %s.', self.support_guild_id, exc_info=e)
-
-        # clear
-        self.translator.clear()
 
     async def cogs_load(self) -> None:
         await asyncio.gather(*[self.load_extension(extension) for extension in INITIAL_EXTENSIONS])

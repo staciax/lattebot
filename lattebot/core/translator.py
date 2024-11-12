@@ -4,14 +4,15 @@ import contextlib
 import inspect
 import logging
 from functools import reduce
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal, overload
 
 from anyio import Path
 from discord import Locale
 from discord.app_commands.commands import Command, ContextMenu, Group, Parameter
 from discord.app_commands.models import Choice
 from discord.app_commands.translator import (
-    TranslationContextLocation as TCL,  # noqa: N817
+    TranslationContext,
+    TranslationContextLocation,
     Translator as _Translator,
     locale_str,
 )
@@ -22,9 +23,7 @@ from lattebot.utils import read_yaml, save_yaml
 __all__ = ('Translator',)
 
 if TYPE_CHECKING:
-    from discord.app_commands.translator import (
-        TranslationContextTypes,
-    )
+    from discord.app_commands.translator import OtherTranslationContext, TranslationContextTypes
     from discord.ext.commands import Cog
 
     from .bot import LatteBot
@@ -47,19 +46,7 @@ class AppCommand(BaseModel):
 
 
 def get_app_command_model(app_command: Command[Any, ..., Any] | Group) -> AppCommand:
-    """
-    Convert an application command or group into an AppCommand model.
-
-    Parameters
-    ----------
-    app_command : discord.app_commands.Command[Any, ..., Any] | discord.app_commands.Group
-        The application command or group to convert.
-
-    Returns
-    -------
-    AppCommand
-        The converted AppCommand model.
-    """
+    """Convert an application command or group into an AppCommand model."""
     return AppCommand(
         name=app_command.name,
         description=app_command.description,
@@ -80,28 +67,31 @@ def get_app_command_model(app_command: Command[Any, ..., Any] | Group) -> AppCom
     )
 
 
+def get_app_command_model_empty_fields(app_command: Command[Any, ..., Any] | Group) -> AppCommand:
+    """Convert an application command or group into an AppCommand model with empty fields."""
+    return AppCommand(
+        name='',
+        description='',
+        options=(
+            {
+                param.name: Option(
+                    display_name='',
+                    description='',
+                    choices={str(choice.value): '' for choice in param.choices},
+                )
+                for param in app_command.parameters
+            }
+            if app_command.parameters
+            else None
+        )
+        if isinstance(app_command, Command)
+        else None,
+    )
+
+
 # TODO: unit test for update_app_command_model
 def update_app_command_model(model: AppCommand, update_model: AppCommand) -> AppCommand:
-    """
-    Update the fields of an existing AppCommand model with the fields from another AppCommand model.
-
-    Parameters
-    ----------
-    model : AppCommand
-        The original AppCommand model to be updated.
-    update_model : AppCommand
-        The AppCommand model containing the new values.
-
-    Raises
-    ------
-    pydantic.ValidationError
-        If the updated model is invalid.
-
-    Returns
-    -------
-    AppCommand
-        A new AppCommand model with the updated fields.
-    """
+    """Update the fields of an existing AppCommand model with the fields from another AppCommand model."""
     original_data = model.model_dump()
     new_data = update_model.model_dump()
 
@@ -118,33 +108,33 @@ def update_app_command_model(model: AppCommand, update_model: AppCommand) -> App
     return AppCommand.model_validate(original_data)  # NOTE: avoid pydantic serializer warnings
 
 
-class Translator(_Translator):
+# TODO: remove duplicate code
+
+
+class AppCommandTranslator:
     __latest_command: Command[Any, ..., Any] | Group | ContextMenu
     __latest_parameter: Parameter
 
-    def __init__(
-        self,
-        bot: LatteBot,
-        locales: tuple[Locale, ...] | None = None,
-        default_locale: Locale = Locale.american_english,
-    ) -> None:
-        super().__init__()
+    def __init__(self, bot: LatteBot, locales: set[Locale], default_locale: Locale) -> None:
         self.bot = bot
-        if not locales:
-            log.warning('no supported locales provided')
+        self.locales = locales
         self.default_locale = default_locale
-        self._locales = {default_locale, *locales} if locales else {default_locale}
-        self._translations: dict[str, dict[str, Any]] = {}  # TODO: defaultdict?
-
-    @property
-    def locales(self) -> list[Locale]:
-        return list(self._locales)
+        self._translations: dict[str, dict[str, Any]] = {}
 
     async def load(self) -> None:
-        log.info('loaded')
+        # await self.bot.wait_until_ready()
+        await self._load_translations()
+
+        log.info('App command translations loaded.')
 
     async def unload(self) -> None:
-        log.info('unloaded')
+        self._translations.clear()
+        log.info('app command translations unloaded')
+
+    def reset_temp_attributes(self) -> None:
+        with contextlib.suppress(AttributeError):
+            del self.__latest_command
+            del self.__latest_parameter
 
     async def translate(self, string: locale_str, locale: Locale, context: TranslationContextTypes) -> str | None:
         if locale == self.default_locale:
@@ -155,15 +145,14 @@ class Translator(_Translator):
 
         tcl = context.location
 
-        if tcl == TCL.other:
-            # TODO: handle other types
+        if tcl == TranslationContextLocation.other:
             return None
 
         keys = self._get_translation_keys(tcl, context.data)
 
         if not keys:
             log.warning(
-                'no keys found for: %s locale: %s tcl: %s type: %s',
+                'No translation keys found for message "%s" in locale "%s", location "%s", type "%s".',
                 string.message,
                 locale.value,
                 context.location.name,
@@ -174,13 +163,14 @@ class Translator(_Translator):
         locale_translations = self._translations.get(locale.value)
 
         if not locale_translations:
+            log.warning('No command translations available for locale "%s".', locale.value)
             return None
 
-        translated_string = self.get_string_by_keys(locale_translations, keys)
+        translated_string = self._get_string_by_keys(locale_translations, keys)
 
         if translated_string is None:
             log.warning(
-                'not found: %s locale: %s tcl: %s type: %s',
+                'Translation not found for message "%s" in locale "%s", location "%s", type "%s".',
                 string.message,
                 locale.value,
                 context.location.name,
@@ -189,95 +179,41 @@ class Translator(_Translator):
 
         return translated_string
 
-    def get_string_by_keys(self, translation_data: dict[str, Any], keys: list[str]) -> str | None:
-        value: str | dict[str, Any] | None = None
-        with contextlib.suppress(KeyError, TypeError):
-            value = reduce(lambda d, k: d[k], keys, translation_data)
-
-        if value is None:
-            log.error('failed to get value by keys: %s', keys)
-            return None
-
-        if not isinstance(value, str):
-            log.error('value is not a string: %s get by keys: %s', value, keys)
-            return None
-
-        return value
-
-    def _get_translation_keys(self, tcl: TCL, translatable: Translatable) -> list[str]:
-        keys = []
-
-        if tcl in {TCL.command_name, TCL.group_name} and isinstance(translatable, Command | Group | ContextMenu):
-            keys.extend([translatable.qualified_name, 'name'])
-            self.__latest_command = translatable
-
-        elif tcl in {TCL.command_description, TCL.group_description} and isinstance(translatable, Command | Group):
-            keys.extend([translatable.qualified_name, 'description'])
-
-        elif tcl == TCL.parameter_name and isinstance(translatable, Parameter):
-            keys.extend([
-                translatable.command.qualified_name,
-                'options',
-                translatable.name,
-                'display_name',
-            ])
-            self.__latest_parameter = translatable
-
-        elif tcl == TCL.parameter_description and isinstance(translatable, Parameter):
-            keys.extend([
-                translatable.command.qualified_name,
-                'options',
-                translatable.name,
-                'description',
-            ])
-
-        elif tcl == TCL.choice_name and isinstance(translatable, Choice):
-            with contextlib.suppress(AttributeError):
-                keys.extend([
-                    self.__latest_command.qualified_name,
-                    'options',
-                    self.__latest_parameter.name,
-                    'choices',
-                    str(translatable.value),
-                ])
-
-        return keys
-
-    async def load_translations(self) -> None:
+    async def _load_translations(self) -> None:
         bot_cogs = self.bot.cogs.values()
         for cog in bot_cogs:
-            locales_path = await self._get_locales_path(cog)
+            locales_path = await self._find_locales_path(cog)
             if locales_path is None:
                 continue
 
+            # print('locales_path', locales_path)
             for locale in self.locales:
                 is_default_locale = locale == self.default_locale
                 locale_filename = 'default' if is_default_locale else locale.value
                 locale_file = locales_path / f'{locale_filename}.yaml'
+                # app_commands_file = locales_path / locale_code / 'app_commands.yaml'
+                # locale_file = locales_path / f'{locale_filename}_commands.yaml'
 
                 if not await locale_file.exists():
-                    if await (invalid_file := locale_file.with_suffix('.yml')).exists():
-                        # TODO: rename extension to .yaml
-                        # invalid_file.rename(locale_file)
-                        raise FileExistsError(
-                            f'Please use .yaml instead of .yml for locale files: {invalid_file.as_posix()!r}'
-                        )
                     await locale_file.touch()
 
                 locale_data: dict[str, Any] | None = await read_yaml(locale_file)
 
-                if is_default_locale or locale_data is None:
-                    commands_data = await self._get_app_commands_data(cog)
-                    self._update_translations(locale, commands_data)
-                    await save_yaml(commands_data, locale_file)
+                if locale_data is None and not is_default_locale:
+                    commands_data = {
+                        command.qualified_name: get_app_command_model_empty_fields(command).model_dump(
+                            exclude_none=True
+                        )
+                        for command in cog.walk_app_commands()
+                    }
+                elif locale_data is None and is_default_locale:
+                    commands_data = await self._get_app_commands_data(cog, empty_fields=True)
                 else:
-                    updated_commands_data = await self._update_app_commands_data(cog, locale_data)
-                    self._update_translations(locale, updated_commands_data)
-                    await save_yaml(updated_commands_data, locale_file)
+                    commands_data = await self._update_app_commands_data(cog, locale_data)
+                self._update_translation(locale, commands_data)
+                await save_yaml(commands_data, locale_file)
 
-        log.info('loaded translations')
-
-    async def _get_locales_path(self, cog: Cog) -> Path | None:
+    async def _find_locales_path(self, cog: Cog) -> Path | None:
         cog_module = inspect.getmodule(cog)
         if cog_module is None:
             log.warning('No module found for cog %s', cog.qualified_name)
@@ -292,37 +228,222 @@ class Translator(_Translator):
             return None
         return locales_path
 
-    async def _get_app_commands_data(self, cog: Cog, *, exclude_none: bool = True) -> dict[str, dict[str, Any]]:
+    def _get_string_by_keys(self, data: dict[str, Any], keys: list[str]) -> str | None:
+        try:
+            value = reduce(lambda d, k: d[k], keys, data)
+        except (KeyError, TypeError):
+            log.exception('Failed to retrieve value by keys "%s".', ' -> '.join(keys))
+        else:
+            if isinstance(value, str):
+                return value
+            log.error('Value for keys "%s" is not a string.', ' -> '.join(keys))
+        return None
+
+    def _get_translation_keys(self, tcl: TranslationContextLocation, translatable: Translatable) -> list[str]:
+        keys = []
+
+        if tcl in {TranslationContextLocation.command_name, TranslationContextLocation.group_name} and isinstance(
+            translatable, Command | Group | ContextMenu
+        ):
+            keys.extend([translatable.qualified_name, 'name'])
+            self.__latest_command = translatable
+
+        elif tcl in {
+            TranslationContextLocation.command_description,
+            TranslationContextLocation.group_description,
+        } and isinstance(translatable, Command | Group):
+            keys.extend([translatable.qualified_name, 'description'])
+
+        elif tcl == TranslationContextLocation.parameter_name and isinstance(translatable, Parameter):
+            keys.extend([
+                translatable.command.qualified_name,
+                'options',
+                translatable.name,
+                'display_name',
+            ])
+            self.__latest_parameter = translatable
+
+        elif tcl == TranslationContextLocation.parameter_description and isinstance(translatable, Parameter):
+            keys.extend([
+                translatable.command.qualified_name,
+                'options',
+                translatable.name,
+                'description',
+            ])
+
+        elif tcl == TranslationContextLocation.choice_name and isinstance(translatable, Choice):
+            with contextlib.suppress(AttributeError):
+                keys.extend([
+                    self.__latest_command.qualified_name,
+                    'options',
+                    self.__latest_parameter.name,
+                    'choices',
+                    str(translatable.value),
+                ])
+
+        return keys
+
+    async def _get_app_commands_data(
+        self,
+        cog: Cog,
+        *,
+        exclude_none: bool = True,
+        empty_fields: bool = False,
+    ) -> dict[str, dict[str, Any]]:
+        if empty_fields:
+            return {
+                command.qualified_name: get_app_command_model_empty_fields(command).model_dump(
+                    exclude_none=exclude_none
+                )
+                for command in cog.walk_app_commands()
+            }
         return {
             command.qualified_name: get_app_command_model(command).model_dump(exclude_none=exclude_none)
             for command in cog.walk_app_commands()
         }
 
     async def _update_app_commands_data(self, cog: Cog, locale_data: dict[str, Any]) -> dict[str, Any]:
-        updated_commands_data = {}
+        updated_data = {}
         for command in cog.walk_app_commands():
             command_name = command.qualified_name
             command_model = get_app_command_model(command)
 
             if command_name in locale_data:
-                existing_command_data = AppCommand.model_validate(locale_data[command_name])
-                updated_command_model = update_app_command_model(
+                existing_model = AppCommand.model_validate(locale_data[command_name])
+                updated_model = update_app_command_model(
                     command_model,
-                    existing_command_data,
+                    existing_model,
                 )
-                updated_commands_data[command_name] = updated_command_model.model_dump(exclude_none=True)
+                updated_data[command_name] = updated_model.model_dump(exclude_none=True)
             else:
-                updated_commands_data[command_name] = command_model.model_dump(exclude_none=True)
-        return updated_commands_data
+                updated_data[command_name] = command_model.model_dump(exclude_none=True)
+        return updated_data
 
-    def _update_translations(self, locale: Locale, commands_data: dict[str, Any]) -> None:
+    def _update_translation(
+        self,
+        locale: Locale,
+        new_data: dict[str, Any],
+    ) -> None:
         if locale.value not in self._translations:
-            self._translations[locale.value] = commands_data
+            self._translations[locale.value] = new_data
         else:
-            self._translations[locale.value].update(commands_data)
+            self._translations[locale.value].update(new_data)
 
-    def clear(self) -> None:
+
+class TextTranslator:
+    def __init__(self, bot: LatteBot, locales: set[Locale], default_locale: Locale) -> None:
+        self.bot = bot
+        self.locales = locales
+        self.default_locale = default_locale
+        self._translations: dict[str, dict[str, Any]] = {}
+
+    async def load(self) -> None:
+        # await self.bot.wait_until_ready()
+        await self._load_translations()
+        log.info('text translations loaded')
+
+    async def unload(self) -> None:
         self._translations.clear()
-        with contextlib.suppress(AttributeError):
-            del self.__latest_command
-            del self.__latest_parameter
+        log.info('text translations unloaded')
+
+    def translate(self, string: locale_str, locale: Locale, _context: TranslationContextTypes | None = None) -> str:  # type: ignore[override]
+        translations = self._translations.get(locale.value) or self._translations.get(self.default_locale.value)
+
+        if not translations:
+            log.warning('No text translations available for locale "%s".', locale.value)
+            return string.message
+
+        text_translated = translations.get(string.message)
+        if text_translated is None:
+            log.warning('Translation not found for text: "%s" in locale: %s', string.message, locale.value)
+
+        return text_translated or string.message
+
+    async def _load_translations(self) -> None:
+        # locales_path = self.bot.base_path / 'locales'
+        locales_path = Path('lattebot/locales')
+        if not await locales_path.exists():
+            log.warning('Locales directory "lattebot/locales" does not exist.')
+            return
+
+        # TODO: support cog
+
+        for locale in self.locales:
+            is_default_locale = locale == self.default_locale
+            locale_code = locale.value
+            locale_filename = 'default' if is_default_locale else locale_code
+
+            locale_file = locales_path / f'{locale_filename}.yaml'
+
+            if not await locale_file.exists():
+                await locale_file.touch()
+                log.info('Created new locale file: "%s".', locale_file)
+
+            locale_data: dict[str, str] | None = await read_yaml(locale_file)
+            if locale_data:
+                self._update_translation(locale, locale_data)
+            else:
+                log.warning('No text translations found in "%s" for locale "%s".', locale_file, locale_code)
+
+        log.info('Text translations loaded.')
+
+    def _update_translation(
+        self,
+        locale: Locale,
+        new_data: dict[str, Any],
+    ) -> None:
+        if locale.value not in self._translations:
+            self._translations[locale.value] = new_data
+        else:
+            self._translations[locale.value].update(new_data)
+
+
+class Translator(_Translator):
+    def __init__(
+        self,
+        bot: LatteBot,
+        *,
+        locales: tuple[Locale, ...] | None = None,
+        default_locale: Locale = Locale.american_english,
+    ) -> None:
+        super().__init__()
+        self.bot = bot
+        if not locales:
+            log.warning('No supported locales provided')
+        self.default_locale = default_locale
+        self.locales = {default_locale, *locales} if locales else {default_locale}
+        self.app_command_translator = AppCommandTranslator(bot, self.locales, self.default_locale)
+        self.text_translator = TextTranslator(bot, self.locales, self.default_locale)
+
+    async def load(self) -> None:
+        # self.bot.loop.create_task(self.app_command_translator.load(), name='translator-app-command-load')
+        # self.bot.loop.create_task(self.text_translator.load(), name='translator-text-load')
+        await self.app_command_translator.load()
+        await self.text_translator.load()
+        log.info('loaded')
+
+    async def unload(self) -> None:
+        await self.app_command_translator.unload()
+        await self.text_translator.unload()
+        log.info('unloaded')
+
+    @overload
+    async def translate(self, string: locale_str, locale: Locale, context: OtherTranslationContext) -> str: ...
+
+    @overload
+    async def translate(self, string: locale_str, locale: Locale, context: TranslationContextTypes) -> str | None: ...
+
+    async def translate(self, string: locale_str, locale: Locale, context: TranslationContextTypes) -> str | None:
+        tcl = context.location
+
+        if tcl == TranslationContextLocation.other:
+            return self.text_translator.translate(string, locale, context)
+
+        return await self.app_command_translator.translate(string, locale, context)
+
+    def translate_text(self, string: locale_str, locale: Locale, data: Any = None) -> str:
+        context = TranslationContext[Literal[TranslationContextLocation.other], Any](
+            location=TranslationContextLocation.other,
+            data=data,
+        )
+        return self.text_translator.translate(string, locale, context)
