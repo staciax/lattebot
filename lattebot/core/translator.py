@@ -137,15 +137,9 @@ class AppCommandTranslator:
         self.default_locale = default_locale
         self._translations: dict[str, dict[str, Any]] = {}
 
-    async def load(self) -> None:
-        await self.bot.wait_until_ready()
-        await self._load_translations()
-
-        log.info('loaded app command translations.')
-
-    async def unload(self) -> None:
+    async def clear(self) -> None:
         self._translations.clear()
-        log.info('unloaded app command translations.')
+        log.info('cleared app command translations.')
 
     def reset_temp_attributes(self) -> None:
         with contextlib.suppress(AttributeError):
@@ -195,38 +189,23 @@ class AppCommandTranslator:
 
         return translated_string
 
-    async def _load_translations(self) -> None:
-        bot_cogs = self.bot.cogs.values()
-        for cog in bot_cogs:
-            locales_path = await _find_locales_path(cog)
-            if locales_path is None:
-                continue
+    async def load_from_cog(self, cog: Cog, locale: Locale, locale_dir: Path) -> None:
+        is_default_locale = locale == self.default_locale
+        locale_file = locale_dir / 'app_command.yaml'
 
-            for locale in self.locales:
-                is_default_locale = locale == self.default_locale
+        if not await locale_file.exists():
+            await locale_file.touch()
 
-                # locale_code = (locale.value if not is_default_locale else 'default').replace('-', '_')
-                locale_code = locale.value.replace('-', '_')
+        locale_data: dict[str, Any] | None = await read_yaml(locale_file)
 
-                locale_dir = locales_path / locale_code
-                if not await locale_dir.exists():
-                    await locale_dir.mkdir(exist_ok=True)
-
-                locale_file = locale_dir / 'app_command.yaml'
-
-                if not await locale_file.exists():
-                    await locale_file.touch()
-
-                locale_data: dict[str, Any] | None = await read_yaml(locale_file)
-
-                if locale_data is None and not is_default_locale:
-                    commands_data = await self._get_app_commands_data(cog, empty_fields=True)
-                elif locale_data is None and is_default_locale:
-                    commands_data = await self._get_app_commands_data(cog)
-                else:
-                    commands_data = await self._update_app_commands_data(cog, locale_data)
-                self._update_translation(locale, commands_data)
-                await save_yaml(commands_data, locale_file)
+        if locale_data is None and not is_default_locale:
+            commands_data = await self._get_app_commands_data(cog, empty_fields=True)
+        elif locale_data is None and is_default_locale:
+            commands_data = await self._get_app_commands_data(cog)
+        else:
+            commands_data = await self._update_app_commands_data(cog, locale_data)
+        self._update_translation(locale, commands_data)
+        await save_yaml(commands_data, locale_file)
 
     def _get_string_by_keys(self, data: dict[str, Any], keys: list[str]) -> str | None:
         try:
@@ -337,14 +316,9 @@ class TextTranslator:
         self.default_locale = default_locale
         self._translations: dict[str, dict[str, Any]] = {}
 
-    async def load(self) -> None:
-        await self.bot.wait_until_ready()
-        await self._load_translations()
-        log.info('loaded text translations.')
-
-    async def unload(self) -> None:
+    async def clear(self) -> None:
         self._translations.clear()
-        log.info('unloaded text translations.')
+        log.info('cleared text translations.')
 
     def translate(self, string: locale_str, locale: Locale, _context: TranslationContextTypes | None = None) -> str:  # type: ignore[override]
         translations = self._translations.get(locale.value) or self._translations.get(self.default_locale.value)
@@ -359,29 +333,16 @@ class TextTranslator:
 
         return text_translated or string.message
 
-    async def _load_translations(self) -> None:
-        bot_cogs = self.bot.cogs.values()
-        for cog in bot_cogs:
-            locales_path = await _find_locales_path(cog)
-            if locales_path is None:
-                continue
+    async def load_from_cog(self, locale: Locale, locale_dir: Path) -> None:
+        locale_file = locale_dir / 'text.yaml'
 
-            for locale in self.locales:
-                locale_code = locale.value.replace('-', '_')
+        if not await locale_file.exists():
+            await locale_file.touch()
 
-                locale_dir = locales_path / locale_code
-                if not await locale_dir.exists():
-                    await locale_dir.mkdir(exist_ok=True)
+        locale_data: dict[str, Any] | None = await read_yaml(locale_file)
 
-                locale_file = locale_dir / 'text.yaml'
-
-                if not await locale_file.exists():
-                    await locale_file.touch()
-
-                locale_data: dict[str, Any] | None = await read_yaml(locale_file)
-
-                if locale_data:
-                    self._update_translation(locale, locale_data)
+        if locale_data:
+            self._update_translation(locale, locale_data)
 
     def _update_translation(
         self,
@@ -412,14 +373,34 @@ class Translator(_Translator):
         self.text_translator = TextTranslator(bot, self.locales, self.default_locale)
 
     async def load(self) -> None:
-        self.bot.loop.create_task(self.app_command_translator.load(), name='translator-app-command-load')
-        self.bot.loop.create_task(self.text_translator.load(), name='translator-text-load')
+        # self.bot.loop.create_task(self.app_command_translator.load(), name='translator-app-command-load')
+        # self.bot.loop.create_task(self.text_translator.load(), name='translator-text-load')
+        self.bot.loop.create_task(self.load_from_cogs(), name='translator-load-from-cogs')
         log.info('loaded')
 
     async def unload(self) -> None:
         await self.app_command_translator.unload()
         await self.text_translator.unload()
         log.info('unloaded')
+
+    async def load_from_cogs(self) -> None:
+        await self.bot.wait_until_ready()
+
+        bot_cogs = self.bot.cogs.values()
+        for cog in bot_cogs:
+            locales_path = await _find_locales_path(cog)
+            if locales_path is None:
+                continue
+
+            for locale in self.locales:
+                locale_code = locale.value.replace('-', '_')
+
+                locale_dir = locales_path / locale_code
+                if not await locale_dir.exists():
+                    await locale_dir.mkdir(exist_ok=True)
+
+                await self.text_translator.load_from_cog(locale, locale_dir)
+                await self.app_command_translator.load_from_cog(cog, locale, locale_dir)
 
     @overload
     async def translate(self, string: locale_str, locale: Locale, context: OtherTranslationContext) -> str: ...
