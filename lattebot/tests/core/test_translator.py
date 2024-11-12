@@ -1,14 +1,14 @@
 import pytest
 
 from lattebot.core.translator import (
-    AppCommand,
+    AppCommandModel,
     update_app_command_model,
 )
 
 
 @pytest.mark.anyio
 def test_update_app_command_data() -> None:
-    app_command = AppCommand.model_validate({
+    app_command = AppCommandModel.model_validate({
         'name': 'a',
         'description': 'a',
         'options': {
@@ -24,7 +24,7 @@ def test_update_app_command_data() -> None:
         },
     })
 
-    app_command_update = AppCommand.model_validate({
+    app_command_update = AppCommandModel.model_validate({
         'name': 'b',
         'description': 'b',
         'options': {
