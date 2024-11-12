@@ -182,6 +182,7 @@ class AppCommandTranslator:
                 context.location.name,
                 type(context.data).__qualname__,
             )
+            return None
 
         return translated_string
 
