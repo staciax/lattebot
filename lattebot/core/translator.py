@@ -33,26 +33,26 @@ if TYPE_CHECKING:
 log = logging.getLogger('latte.translator')
 
 
-class Option(BaseModel):
+class OptionModel(BaseModel):
     display_name: str
     description: str
     choices: dict[str, str] | None = None
 
 
-class AppCommand(BaseModel):
+class AppCommandModel(BaseModel):
     name: str
     description: str
-    options: dict[str, Option] | None = None
+    options: dict[str, OptionModel] | None = None
 
 
-def get_app_command_model(app_command: Command[Any, ..., Any] | Group) -> AppCommand:
+def build_app_command_model(app_command: Command[Any, ..., Any] | Group) -> AppCommandModel:
     """Convert an application command or group into an AppCommand model."""
-    return AppCommand(
+    return AppCommandModel(
         name=app_command.name,
         description=app_command.description,
         options=(
             {
-                param.name: Option(
+                param.name: OptionModel(
                     display_name=param.display_name,
                     description=param.description,
                     choices={str(choice.value): choice.name for choice in param.choices},
@@ -67,14 +67,14 @@ def get_app_command_model(app_command: Command[Any, ..., Any] | Group) -> AppCom
     )
 
 
-def get_app_command_model_empty_fields(app_command: Command[Any, ..., Any] | Group) -> AppCommand:
+def build_empty_app_command_model(app_command: Command[Any, ..., Any] | Group) -> AppCommandModel:
     """Convert an application command or group into an AppCommand model with empty fields."""
-    return AppCommand(
+    return AppCommandModel(
         name='',
         description='',
         options=(
             {
-                param.name: Option(
+                param.name: OptionModel(
                     display_name='',
                     description='',
                     choices={str(choice.value): '' for choice in param.choices},
@@ -90,7 +90,7 @@ def get_app_command_model_empty_fields(app_command: Command[Any, ..., Any] | Gro
 
 
 # TODO: unit test for update_app_command_model
-def update_app_command_model(model: AppCommand, update_model: AppCommand) -> AppCommand:
+def update_app_command_model(model: AppCommandModel, update_model: AppCommandModel) -> AppCommandModel:
     """Update the fields of an existing AppCommand model with the fields from another AppCommand model."""
     original_data = model.model_dump()
     new_data = update_model.model_dump()
@@ -105,7 +105,7 @@ def update_app_command_model(model: AppCommand, update_model: AppCommand) -> App
     deep_update(original_data, new_data)
 
     # return AppCommand.model_copy(update=data1)
-    return AppCommand.model_validate(original_data)  # NOTE: avoid pydantic serializer warnings
+    return AppCommandModel.model_validate(original_data)  # NOTE: avoid pydantic serializer warnings
 
 
 async def get_cog_locales_path(cog: Cog) -> Path | None:
@@ -216,22 +216,27 @@ class AppCommandTranslator:
             log.error('Value for keys "%s" is not a string.', ' -> '.join(keys))
         return None
 
-    def _get_translation_keys(self, tcl: TranslationContextLocation, translatable: Translatable) -> list[str]:
+    def _get_translation_keys(
+        self,
+        context_location: TranslationContextLocation,
+        translatable: Translatable,
+    ) -> list[str]:
         keys = []
 
-        if tcl in {TranslationContextLocation.command_name, TranslationContextLocation.group_name} and isinstance(
-            translatable, Command | Group | ContextMenu
-        ):
+        if context_location in {
+            TranslationContextLocation.command_name,
+            TranslationContextLocation.group_name,
+        } and isinstance(translatable, Command | Group | ContextMenu):
             keys.extend([translatable.qualified_name, 'name'])
             self.__current_command = translatable
 
-        elif tcl in {
+        elif context_location in {
             TranslationContextLocation.command_description,
             TranslationContextLocation.group_description,
         } and isinstance(translatable, Command | Group):
             keys.extend([translatable.qualified_name, 'description'])
 
-        elif tcl == TranslationContextLocation.parameter_name and isinstance(translatable, Parameter):
+        elif context_location == TranslationContextLocation.parameter_name and isinstance(translatable, Parameter):
             keys.extend([
                 translatable.command.qualified_name,
                 'options',
@@ -240,7 +245,9 @@ class AppCommandTranslator:
             ])
             self.__current_parameter = translatable
 
-        elif tcl == TranslationContextLocation.parameter_description and isinstance(translatable, Parameter):
+        elif context_location == TranslationContextLocation.parameter_description and isinstance(
+            translatable, Parameter
+        ):
             keys.extend([
                 translatable.command.qualified_name,
                 'options',
@@ -248,7 +255,7 @@ class AppCommandTranslator:
                 'description',
             ])
 
-        elif tcl == TranslationContextLocation.choice_name and isinstance(translatable, Choice):
+        elif context_location == TranslationContextLocation.choice_name and isinstance(translatable, Choice):
             with contextlib.suppress(AttributeError):
                 keys.extend([
                     self.__current_command.qualified_name,
@@ -269,13 +276,11 @@ class AppCommandTranslator:
     ) -> dict[str, dict[str, Any]]:
         if empty_fields:
             return {
-                command.qualified_name: get_app_command_model_empty_fields(command).model_dump(
-                    exclude_none=exclude_none
-                )
+                command.qualified_name: build_empty_app_command_model(command).model_dump(exclude_none=exclude_none)
                 for command in cog.walk_app_commands()
             }
         return {
-            command.qualified_name: get_app_command_model(command).model_dump(exclude_none=exclude_none)
+            command.qualified_name: build_app_command_model(command).model_dump(exclude_none=exclude_none)
             for command in cog.walk_app_commands()
         }
 
@@ -283,10 +288,10 @@ class AppCommandTranslator:
         updated_data = {}
         for command in cog.walk_app_commands():
             command_name = command.qualified_name
-            command_model = get_app_command_model(command)
+            command_model = build_app_command_model(command)
 
             if command_name in locale_data:
-                existing_model = AppCommand.model_validate(locale_data[command_name])
+                existing_model = AppCommandModel.model_validate(locale_data[command_name])
                 updated_model = update_app_command_model(
                     command_model,
                     existing_model,
@@ -368,7 +373,10 @@ class Translator(_Translator):
         if not locales:
             log.warning('No supported locales provided')
         self.default_locale = default_locale
-        self.locales = {default_locale, *locales} if locales else {default_locale}
+        self.locales = {default_locale}
+        if locales:
+            self.locales.update(locales)
+
         self.app_command_translator = AppCommandTranslator(self)
         self.text_translator = TextTranslator(self)
 
