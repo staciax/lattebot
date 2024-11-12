@@ -145,16 +145,16 @@ class AppCommandTranslator:
             del self.__current_parameter
 
     async def translate(self, string: locale_str, locale: Locale, context: TranslationContextTypes) -> str | None:
+        if context.location == TranslationContextLocation.other:
+            return None
+
         if locale == self.translator.default_locale:
             return None
 
         if locale not in self.translator.locales:
             return None
 
-        if context.location == TranslationContextLocation.other:
-            return None
-
-        keys = self._get_translation_keys(context.location, context.data)
+        keys = self._get_translation_keys(context)
 
         if not keys:
             log.warning(
@@ -174,7 +174,7 @@ class AppCommandTranslator:
 
         translated_string = self._get_string_by_keys(locale_translations, keys)
 
-        if translated_string is None:
+        if not translated_string:
             log.warning(
                 'Translation not found for message "%s" in locale "%s", location "%s", type "%s".',
                 string.message,
@@ -216,12 +216,11 @@ class AppCommandTranslator:
             log.error('Value for keys "%s" is not a string.', ' -> '.join(keys))
         return None
 
-    def _get_translation_keys(
-        self,
-        context_location: TranslationContextLocation,
-        translatable: Translatable,
-    ) -> list[str]:
+    def _get_translation_keys(self, context: TranslationContextTypes) -> list[str]:
         keys = []
+
+        context_location = context.location
+        translatable = context.data
 
         if context_location in {
             TranslationContextLocation.command_name,
