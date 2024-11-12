@@ -144,14 +144,11 @@ class AppCommandTranslator:
             del self.__current_command
             del self.__current_parameter
 
-    async def translate(self, string: locale_str, locale: Locale, context: TranslationContextTypes) -> str | None:  # noqa: PLR0911
+    async def translate(self, string: locale_str, locale: Locale, context: TranslationContextTypes) -> str | None:
         if context.location == TranslationContextLocation.other:
             return None
 
-        if locale == self.translator.default_locale:
-            return None
-
-        if locale not in self.translator.locales:
+        if (locale == self.translator.default_locale) or (locale not in self.translator.locales):
             return None
 
         keys = self._get_translation_keys(context)
