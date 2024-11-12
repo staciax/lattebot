@@ -391,6 +391,7 @@ class Translator(_Translator):
         for cog in bot_cogs:
             locales_path = await get_cog_locales_path(cog)
             if locales_path is None:
+                log.warning('No locales folder found for cog %s', cog.qualified_name)
                 continue
 
             for locale in self.locales:
