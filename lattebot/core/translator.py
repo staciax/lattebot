@@ -376,6 +376,8 @@ class Translator(_Translator):
     async def initialize_translations(self) -> None:
         await self.bot.wait_until_ready()
 
+        # TODO: add support for loading translations from other sources such as global locales folder, etc.
+
         bot_cogs = self.bot.cogs.values()
         for cog in bot_cogs:
             locales_path = await self._get_cog_locales_path(cog)
