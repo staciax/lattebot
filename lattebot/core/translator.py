@@ -312,10 +312,13 @@ class TextTranslator:
             return string.message
 
         text_translated = translations.get(string.message)
-        if text_translated is None:
+
+        if text_translated:
+            text_translated = text_translated.format(**string.extras)
+        else:
             log.warning('Translation not found for text: "%s" in locale: %s', string.message, locale.value)
 
-        return text_translated.format(**string.extras) or text_translated
+        return text_translated or string.message
 
     async def load_from_locale_dir(self, locale: Locale, locale_dir: Path) -> None:
         locale_file = locale_dir / 'text.yaml'
