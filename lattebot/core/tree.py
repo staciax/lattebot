@@ -42,5 +42,5 @@ class LatteTree(app_commands.CommandTree['LatteBot']):
         finally:
             translator = self.translator
             if translator:
-                translator.app_command_translator.reset_temp_attributes()
+                translator.app_command_translator.reset_context()
         return sync_commands
