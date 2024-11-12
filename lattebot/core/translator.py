@@ -144,7 +144,7 @@ class AppCommandTranslator:
             del self.__current_command
             del self.__current_parameter
 
-    async def translate(self, string: locale_str, locale: Locale, context: TranslationContextTypes) -> str | None:
+    async def translate(self, string: locale_str, locale: Locale, context: TranslationContextTypes) -> str | None:  # noqa: PLR0911
         if context.location == TranslationContextLocation.other:
             return None
 
