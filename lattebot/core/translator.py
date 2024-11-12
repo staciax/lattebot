@@ -108,10 +108,10 @@ def update_app_command_model(model: AppCommand, update_model: AppCommand) -> App
     return AppCommand.model_validate(original_data)  # NOTE: avoid pydantic serializer warnings
 
 
-async def _find_locales_path(cog: Cog) -> Path | None:
+async def get_cog_locales_path(cog: Cog) -> Path | None:
     cog_module = inspect.getmodule(cog)
     if cog_module is None:
-        log.warning('No module found for cog %s', cog.qualified_name)
+        # log.warning('No module found for cog %s', cog.qualified_name)
         return None
 
     cog_file_path = inspect.getfile(cog_module)
@@ -119,7 +119,7 @@ async def _find_locales_path(cog: Cog) -> Path | None:
     locales_path = cog_directory / 'locales'
 
     if not await locales_path.exists():
-        log.warning('No locales folder found for cog %s', cog.qualified_name)
+        # log.warning('No locales folder found for cog %s', cog.qualified_name)
         return None
     return locales_path
 
@@ -389,7 +389,7 @@ class Translator(_Translator):
 
         bot_cogs = self.bot.cogs.values()
         for cog in bot_cogs:
-            locales_path = await _find_locales_path(cog)
+            locales_path = await get_cog_locales_path(cog)
             if locales_path is None:
                 continue
 
