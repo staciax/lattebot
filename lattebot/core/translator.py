@@ -184,7 +184,7 @@ class AppCommandTranslator:
         if locale_data is None:
             commands_data = await self._get_app_commands_data(
                 cog,
-                empty_fields=is_default_locale,
+                empty_fields=not is_default_locale,
             )
         else:
             commands_data = await self._update_app_commands_data(cog, locale_data)
@@ -443,7 +443,7 @@ class Translator(_Translator):
     async def _ensure_locale_dir(self, cog_locales_path: Path, locale: Locale) -> Path:
         locale_code = locale.value.replace('-', '_')
         locale_dir = cog_locales_path / locale_code
-        if not locale_dir.exists():
-            await locale_dir.mkdir(exist_ok=True)
+        if not await locale_dir.exists():
+            await locale_dir.mkdir(parents=True, exist_ok=True)
 
         return locale_dir
