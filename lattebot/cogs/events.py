@@ -44,13 +44,13 @@ class Event(LatteCog, name='events'):
         """Call when LatteBot joins a guild."""
         # TODO: Blacklist check
 
-        embed = discord.Embed(title='ᴊᴏɪɴᴇᴅ ꜱᴇʀᴠᴇʀ')
+        embed = discord.Embed(title='ᴊᴏɪɴᴇᴅ ꜱᴇʀᴠᴇʀ', color=0x8BE28B)
         await self.send_guild_stats(embed, guild)
 
     @LatteCog.listener('on_guild_remove')
     async def on_latte_leave(self, guild: discord.Guild) -> None:
         """Call when LatteBot leaves a guild."""
-        embed = discord.Embed(title='ʟᴇꜰᴛ ꜱᴇʀᴠᴇʀ')
+        embed = discord.Embed(title='ʟᴇꜰᴛ ꜱᴇʀᴠᴇʀ', color=0xFF6961)
         await self.send_guild_stats(embed, guild)
 
 
