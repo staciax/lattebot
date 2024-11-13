@@ -167,7 +167,12 @@ class AppCommandTranslator:
 
         return translated_string
 
-    async def load_from_cog(self, cog: Cog, locale: Locale, locale_dir: Path) -> None:
+    async def load_from_locale_dir(
+        self,
+        locale: Locale,
+        locale_dir: Path,
+        cog: Cog,
+    ) -> None:
         is_default_locale = locale == self.translator.default_locale
         locale_file = locale_dir / 'app_command.yaml'
 
@@ -177,7 +182,10 @@ class AppCommandTranslator:
         locale_data: dict[str, Any] | None = await read_yaml(locale_file)
 
         if locale_data is None:
-            commands_data = await self._get_app_commands_data(cog, empty_fields=not is_default_locale)
+            commands_data = await self._get_app_commands_data(
+                cog,
+                empty_fields=is_default_locale,
+            )
         else:
             commands_data = await self._update_app_commands_data(cog, locale_data)
 
@@ -385,19 +393,15 @@ class Translator(_Translator):
 
         bot_cogs = self.bot.cogs.values()
         for cog in bot_cogs:
-            locales_path = await self._get_cog_locales_path(cog)
-            if locales_path is None:
+            cog_locales_path = await self._get_cog_locales_path(cog)
+            if cog_locales_path is None:
                 continue
 
             for locale in self.locales:
-                locale_code = locale.value.replace('-', '_')
-
-                locale_dir = locales_path / locale_code
-                if not await locale_dir.exists():
-                    await locale_dir.mkdir(exist_ok=True)
+                locale_dir = await self._ensure_locale_dir(cog_locales_path, locale)
 
                 await self.text_translator.load_from_locale_dir(locale, locale_dir)
-                await self.app_command_translator.load_from_cog(cog, locale, locale_dir)
+                await self.app_command_translator.load_from_locale_dir(locale, locale_dir, cog)
 
     @overload
     async def translate(self, string: locale_str, locale: Locale, context: OtherTranslationContext) -> str: ...
@@ -435,3 +439,11 @@ class Translator(_Translator):
             return None
 
         return locales_path
+
+    async def _ensure_locale_dir(self, cog_locales_path: Path, locale: Locale) -> Path:
+        locale_code = locale.value.replace('-', '_')
+        locale_dir = cog_locales_path / locale_code
+        if not locale_dir.exists():
+            await locale_dir.mkdir(exist_ok=True)
+
+        return locale_dir
