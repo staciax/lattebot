@@ -1,17 +1,9 @@
 from __future__ import annotations
 
-import logging
-from typing import TYPE_CHECKING
-
 import discord
 
 from lattebot.core.cog import LatteCog
 from lattebot.core.config import settings
-
-if TYPE_CHECKING:
-    from lattebot.core.bot import LatteBot
-
-log = logging.getLogger(__name__)
 
 
 class Event(LatteCog, name='events'):
@@ -52,7 +44,3 @@ class Event(LatteCog, name='events'):
         """Call when LatteBot leaves a guild."""
         embed = discord.Embed(title='ʟᴇꜰᴛ ꜱᴇʀᴠᴇʀ', color=0xFF6961)
         await self.send_guild_stats(embed, guild)
-
-
-async def setup(bot: LatteBot) -> None:
-    await bot.add_cog(Event(bot))
