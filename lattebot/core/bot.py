@@ -57,6 +57,7 @@ class LatteBot(commands.AutoShardedBot):
             tree_cls=LatteTree,
             activity=discord.Activity(type=discord.ActivityType.listening, name='latte ♡ ₊˚'),
         )
+        self._application_emojis: dict[str, discord.Emoji] = {}
 
     async def on_ready(self) -> None:
         log.info(
@@ -87,6 +88,9 @@ class LatteBot(commands.AutoShardedBot):
             permissions=discord.Permissions(settings.INVITE_PERMISSIONS),
         )
 
+    def get_application_emoji(self, /, name: str) -> discord.Emoji | None:
+        return self._application_emojis.get(name)
+
     async def setup_hook(self) -> None:
         self.session = aiohttp.ClientSession()
 
@@ -100,8 +104,13 @@ class LatteBot(commands.AutoShardedBot):
         self.bot_app_info = await self.application_info()
         self.owner_ids = [self.bot_app_info.owner.id]
 
+        await self.application_emojis_load()
+
         await self.cogs_load()
-        # await self.tree_sync()
+
+    async def application_emojis_load(self) -> None:
+        application_emojis = await self.fetch_application_emojis()
+        self._application_emojis = {emoji.name: emoji for emoji in application_emojis}
 
     async def tree_sync(self, guild_only: bool = False) -> None:
         # tree sync application commands
