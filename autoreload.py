@@ -8,7 +8,7 @@ import os
 from pathlib import Path
 from typing import Generic, TypeVar
 
-import watchfiles  # type: ignore[import-not-found]
+import watchfiles
 from discord.ext import commands
 
 __all__ = ('Reloader',)
@@ -84,7 +84,7 @@ class Reloader(Generic[BotT]):
         ----------
         extension: :class:`str`
             The extension that was reloaded.
-        """
+        """  # noqa: D401
 
     async def on_error(self, extension: str, error: commands.ExtensionFailed) -> None:
         """A method that gets called when auto-reloading an extension fails.
@@ -101,7 +101,7 @@ class Reloader(Generic[BotT]):
             The extension that raised the error.
         error: :class:`discord.ext.commands.ExtensionFailed`
             The error that was raised.
-        """
+        """  # noqa: D401
         _log.error('Ignoring exception while auto reloading extension %r', extension, exc_info=error.original)
 
     def stop(self) -> None:
@@ -112,7 +112,7 @@ class Reloader(Generic[BotT]):
 
         To check whether the reloader is running or not, use the
         :attr:`.stopped` property.
-        """
+        """  # noqa: D401
         self.__stopped.set()
         if self.__reloader_task:
             self.__reloader_task.cancel()
@@ -130,7 +130,7 @@ class Reloader(Generic[BotT]):
         ----------
         bot: :class:`discord.ext.commands.Bot | discord.ext.commands.AutoShardedBot`
             The bot instance.
-        """
+        """  # noqa: D401
         if not self.stopped:
             raise RuntimeError('Reloader is already running')
 
