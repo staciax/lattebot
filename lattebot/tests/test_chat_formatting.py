@@ -66,26 +66,26 @@ def test_inline() -> None:
 
 
 def test_headers() -> None:
-    assert headers('Header', 1) == '# Header'
-    assert headers('Header', 2) == '## Header'
-    assert headers('Header', 3) == '### Header'
+    assert headers('Header', level=1) == '# Header'
+    assert headers('Header', level=2) == '## Header'
+    assert headers('Header', level=3) == '### Header'
     with pytest.raises(ValueError, match='Level must be between 1 and 3'):
-        headers('Header', 4)  # type: ignore[arg-type]
+        headers('Header', level=4)  # type: ignore[arg-type]
 
 
 def test_masked_links() -> None:
-    assert masked_links('text', 'http://example.com') == '[text](http://example.com)'
+    assert masked_links('text', link='http://example.com') == '[text](http://example.com)'
 
 
 def test_lists() -> None:
-    assert lists('item', 1) == ' - item'
-    assert lists('item', 2) == '  - item'
-    assert lists('item', 3) == '   - item'
+    assert lists('item', level=1) == ' - item'
+    assert lists('item', level=2) == '  - item'
+    assert lists('item', level=3) == '   - item'
 
 
 def test_code_block() -> None:
     assert code_block('code') == '```\ncode```'
-    assert code_block('code', 'python') == '```python\ncode```'
+    assert code_block('code', lang='python') == '```python\ncode```'
 
 
 def test_block_quotes() -> None:
