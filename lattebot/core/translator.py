@@ -45,47 +45,36 @@ class AppCommandModel(BaseModel):
     options: dict[str, OptionModel] | None = None
 
 
-def build_app_command_model(app_command: Command[Any, ..., Any] | Group) -> AppCommandModel:
-    """Convert an application command or group into an AppCommand model."""
-    return AppCommandModel(
-        name=app_command.name,
-        description=app_command.description,
-        options=(
-            {
-                param.name: OptionModel(
-                    display_name=param.display_name,
-                    description=param.description,
-                    choices={str(choice.value): choice.name for choice in param.choices},
-                )
-                for param in app_command.parameters
-            }
-            if app_command.parameters
-            else None
-        )
-        if isinstance(app_command, Command)
-        else None,
-    )
+def build_app_command_model(
+    app_command: Command[Any, ..., Any] | Group,
+    empty_fields: bool = False,
+) -> AppCommandModel:
+    """Convert an application command or group into an AppCommand model.
 
+    If empty_fields is True, the fields will be empty strings.
+    """
+    name: str = '' if empty_fields else app_command.name
+    description: str = '' if empty_fields else app_command.description
+    options: dict[str, OptionModel] | None = None
 
-def build_empty_app_command_model(app_command: Command[Any, ..., Any] | Group) -> AppCommandModel:
-    """Convert an application command or group into an AppCommand model with empty fields."""
+    if isinstance(app_command, Command) and app_command.parameters:
+        options = {
+            param.name: OptionModel(
+                display_name='' if empty_fields else param.display_name,
+                description='' if empty_fields else param.description,
+                choices=(
+                    {str(choice.value): '' if empty_fields else choice.name for choice in param.choices}
+                    if param.choices
+                    else None
+                ),
+            )
+            for param in app_command.parameters
+        }
+
     return AppCommandModel(
-        name='',
-        description='',
-        options=(
-            {
-                param.name: OptionModel(
-                    display_name='',
-                    description='',
-                    choices={str(choice.value): '' for choice in param.choices},
-                )
-                for param in app_command.parameters
-            }
-            if app_command.parameters
-            else None
-        )
-        if isinstance(app_command, Command)
-        else None,
+        name=name,
+        description=description,
+        options=options,
     )
 
 
@@ -263,13 +252,10 @@ class AppCommandTranslator:
         exclude_none: bool = True,
         empty_fields: bool = False,
     ) -> dict[str, dict[str, Any]]:
-        if empty_fields:
-            return {
-                command.qualified_name: build_empty_app_command_model(command).model_dump(exclude_none=exclude_none)
-                for command in cog.walk_app_commands()
-            }
         return {
-            command.qualified_name: build_app_command_model(command).model_dump(exclude_none=exclude_none)
+            command.qualified_name: build_app_command_model(command, empty_fields=empty_fields).model_dump(
+                exclude_none=exclude_none
+            )
             for command in cog.walk_app_commands()
         }
 
