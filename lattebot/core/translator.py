@@ -318,15 +318,13 @@ class TextTranslator:
         )
 
         if not translations:
-            log.warning('No text translations available for locale "%s".', locale.value)
+            log.warning('Translation not found for text: "%s" in locale: %s', string.message, locale.value)
             return string.message
 
         text_translated = translations.get(string.message)
 
         if text_translated:
             text_translated = text_translated.format(**string.extras)
-        else:
-            log.warning('Translation not found for text: "%s" in locale: %s', string.message, locale.value)
 
         return text_translated or string.message
 
