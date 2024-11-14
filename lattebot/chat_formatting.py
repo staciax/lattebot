@@ -60,8 +60,7 @@ def inline(text: str) -> str:
     """Return an inline string."""
     if '`' in text:
         return f'``{text}``'
-    else:
-        return f'`{text}`'
+    return f'`{text}`'
 
 
 # organizational text formatting
@@ -69,14 +68,9 @@ def inline(text: str) -> str:
 
 def headers(text: str, level: Literal[1, 2, 3] = 1) -> str:
     """Return a header string."""
-    if level == 1:
-        return f'# {text}'
-    elif level == 2:
-        return f'## {text}'
-    elif level == 3:
-        return f'### {text}'
-    else:
+    if level not in {1, 2, 3}:
         raise ValueError('level must be 1, 2, or 3')
+    return f'{"#" * level} {text}'
 
 
 def masked_links(text: str, link: str) -> str:
@@ -98,5 +92,4 @@ def block_quotes(text: str, multi: bool = False) -> str:
     """Return a block quote string."""
     if multi:
         return f'> {text}'
-    else:
-        return f'>>> {text}'
+    return f'>>> {text}'
