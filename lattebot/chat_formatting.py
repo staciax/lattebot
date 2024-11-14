@@ -69,7 +69,7 @@ def inline(text: str) -> str:
 def headers(text: str, level: Literal[1, 2, 3] = 1) -> str:
     """Return a header string."""
     if level not in {1, 2, 3}:
-        raise ValueError('level must be 1, 2, or 3')
+        raise ValueError('Level must be between 1 and 3')
     return f'{"#" * level} {text}'
 
 
