@@ -170,10 +170,7 @@ class AppCommandTranslator:
         locale_data: dict[str, Any] | None = await read_yaml(locale_file)
 
         if locale_data is None:
-            commands_data = await self._get_app_commands_data(
-                cog,
-                empty_fields=not is_default_locale,
-            )
+            commands_data = await self._get_app_commands_data(cog, empty_fields=not is_default_locale)
         else:
             commands_data = await self._update_app_commands_data(cog, locale_data)
 
