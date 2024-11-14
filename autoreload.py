@@ -164,6 +164,11 @@ class Reloader(Generic[BotT]):
                     continue
 
                 extension = _get_extension_name(path)
+
+                # NOTE: hardcode fix for subpackages
+                if extension.endswith('.main'):
+                    extension = extension.replace('.main', '')
+
                 if extension not in bot.extensions:
                     # Extension not loaded, so ignore
                     continue
