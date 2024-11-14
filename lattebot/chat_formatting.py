@@ -90,6 +90,4 @@ def code_block(text: str, /, *, lang: str = '') -> str:
 
 def block_quotes(text: str, /, *, multi: bool = False) -> str:
     """Return a block quote string."""
-    if multi:
-        return f'> {text}'
-    return f'>>> {text}'
+    return f'> {text}' if multi else f'>>> {text}'
