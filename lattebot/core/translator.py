@@ -78,7 +78,6 @@ def build_app_command_model(
     )
 
 
-# TODO: unit test for update_app_command_model
 def update_app_command_model(model: AppCommandModel, update_model: AppCommandModel) -> AppCommandModel:
     """Update the fields of an existing AppCommand model with the fields from another AppCommand model."""
     original_data = model.model_dump()
