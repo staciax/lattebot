@@ -25,8 +25,37 @@ class Test(LatteCog, name='test'):
         await interaction.response.send_message(f'username: {user.name}', ephemeral=True)
 
     @app_commands.command(name=_('command'), description=_('command description'))
-    async def test_command(self, interaction: discord.Interaction[LatteBot]) -> None:
-        await interaction.response.send_message('command response', ephemeral=True)
+    @app_commands.describe(
+        param_str=_('string parameter'),
+        param_int=_('integer parameter'),
+        param_float=_('float parameter'),
+    )
+    @app_commands.choices(
+        param_str=[
+            app_commands.Choice(name='str 1', value='str_1'),
+            app_commands.Choice(name='str 2', value='str_2'),
+            app_commands.Choice(name='str 3', value='str_3'),
+        ],
+        param_int=[
+            app_commands.Choice(name='int 1', value=1),
+            app_commands.Choice(name='int 2', value=2),
+            app_commands.Choice(name='int 3', value=3),
+        ],
+        param_float=[
+            app_commands.Choice(name='float 1', value=1.5),
+            app_commands.Choice(name='float 2', value=2.5),
+            app_commands.Choice(name='float 3', value=3.5),
+        ],
+    )  # type: ignore[misc]
+    async def test_command(
+        self,
+        interaction: discord.Interaction[LatteBot],
+        param_str: app_commands.Choice[str],
+        param_int: app_commands.Choice[int],
+        param_float: app_commands.Choice[float],
+    ) -> None:
+        content = f'param_str: {param_str.value}, param_int: {param_int.value}, param_float: {param_float.value}'
+        await interaction.response.send_message(content, ephemeral=True)
 
 
 async def setup(bot: LatteBot) -> None:
