@@ -4,9 +4,7 @@ from typing import TYPE_CHECKING, Callable  # noqa: UP035
 
 import discord
 from discord import app_commands
-from discord.app_commands.checks import (
-    Cooldown as Cooldown,
-)
+from discord.app_commands.checks import Cooldown
 
 __all__ = (
     'cooldown_long',
