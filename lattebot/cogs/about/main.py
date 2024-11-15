@@ -62,6 +62,9 @@ class About(LatteCog, name='about'):
     @app_commands.command(name=_('about'), description=_('Shows bot information'))
     @bot_has_permissions(send_messages=True, embed_links=True)
     async def about(self, interaction: discord.Interaction[LatteBot]) -> None:
+        translator = self.bot.translator
+        locale = interaction.locale
+
         guild_count = len(self.bot.guilds)
         member_count = sum(guild.member_count for guild in self.bot.guilds if guild.member_count is not None)
         total_commands = len(self.bot.tree.get_commands())
@@ -72,8 +75,8 @@ class About(LatteCog, name='about'):
         latest_commits = get_latest_commits(limit=5)
 
         embed = LocalizedEmbed(
-            translator=self.bot.translator,
-            locale=interaction.locale,
+            translator=translator,
+            locale=locale,
             timestamp=interaction.created_at,
             color=0xC0AEE0,
         )
@@ -116,16 +119,14 @@ class About(LatteCog, name='about'):
 
         # TODO: view support translation
 
-        translator = self.bot.translator
-
         view = View()
         view.add_url_button(
-            translator.translate_text(_('about.support_server'), interaction.locale),
+            translator.translate_text(_('about.support_server'), locale),
             'https://discord.gg',
             emoji=self.bot.get_application_emoji('lattebot'),
         )
         view.add_url_button(
-            translator.translate_text(_('about.developer'), interaction.locale),
+            translator.translate_text(_('about.developer'), locale),
             'https://github.com/staciax',
             emoji=self.bot.get_application_emoji('stacia_dev'),
         )
@@ -135,20 +136,21 @@ class About(LatteCog, name='about'):
     @app_commands.command(name=_('support'), description=_('Sends the support server of the bot.'))
     @bot_has_permissions(send_messages=True, embed_links=True)
     async def support(self, interaction: discord.Interaction[LatteBot]) -> None:
-        embed = LocalizedEmbed(translator=self.bot.translator, locale=interaction.locale)
+        translator = self.bot.translator
+        locale = interaction.locale
+
+        embed = LocalizedEmbed(translator=translator, locale=locale)
         embed.set_author(name='ꜱᴜᴘᴘᴏʀᴛ:', icon_url=self.bot.user.avatar)  # url=self.bot.support_invite_url
         embed.set_thumbnail(url=self.bot.user.avatar)
 
-        translator = self.bot.translator
-
         view = View()
         view.add_url_button(
-            translator.translate_text(_('about.support_server'), interaction.locale),
+            translator.translate_text(_('about.support_server'), locale),
             'https://discord.gg',
             emoji=self.bot.get_application_emoji('lattebot'),
         )
         view.add_url_button(
-            translator.translate_text(_('about.developer'), interaction.locale),
+            translator.translate_text(_('about.developer'), locale),
             'https://github.com/staciax',
             emoji=self.bot.get_application_emoji('stacia_dev'),
         )
