@@ -1,10 +1,10 @@
 import asyncio
 import logging
-from typing import Any
+from typing import Any, Sequence  # noqa: UP035
 
 import aiohttp
 import discord
-from discord import MissingApplicationID
+from discord import MissingApplicationID, utils
 from discord.ext import commands
 
 from .config import settings
@@ -87,6 +87,10 @@ class LatteBot(commands.AutoShardedBot):
             scopes=('bot', 'applications.commands'),
             permissions=discord.Permissions(settings.INVITE_PERMISSIONS),
         )
+
+    @property
+    def get_application_emojis(self) -> Sequence[discord.Emoji]:
+        return utils.SequenceProxy(self._application_emojis.values())
 
     def get_application_emoji(self, /, name: str) -> discord.Emoji | None:
         return self._application_emojis.get(name)
