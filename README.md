@@ -1,7 +1,7 @@
 <p align="center">
   <img width="225" height="225" src="https://i.imgur.com/ufq5WOM.png">
 </p>
-
+<h3 align="center">lattebot</h5>
 <h4 align="center">A cute little Discord bot, created during my fun and free moments.</h5>
 
 ## License
