@@ -6,7 +6,6 @@ services:
       context: .
     platform: linux/amd64 # Patch for M1 Mac
     volumes:
-      - .:/app:ro
       - ./logs:/app/logs:rw
     env_file:
       - .env
