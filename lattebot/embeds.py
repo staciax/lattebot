@@ -62,13 +62,13 @@ class Embed(discord.Embed):
                 name, value, *inline = field
                 self.add_field(name=name, value=value, inline=inline[0] if inline else True)
             elif field in ('blank', 'blank_inline'):  # noqa: PLR6201
-                self.add_blank_field(inline=field == 'blank_inline')
+                self.add_empty_field(inline=field == 'blank_inline')
 
     def set_empty_title(self) -> Self:
         self.title = '\u200b'
         return self
 
-    def add_blank_field(self, *, inline: bool = False) -> Self:
+    def add_empty_field(self, *, inline: bool = False) -> Self:
         self.add_field(name='\u200b', value='\u200b', inline=inline)
         return self
 
