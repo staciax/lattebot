@@ -4,7 +4,7 @@
     "**/__pycache__": true,
     "**/.ruff_cache": true,
     "**/.mypy_cache": true,
-    "**/.pytest_cache": true,
+    "**/.pytest_cache": true
   },
 
   // Ruff
@@ -26,11 +26,9 @@
   "mypy.enabled": true,
   "mypy.runUsingActiveInterpreter": true,
   "mypy.configFile": "./pyproject.toml",
- 
+
   // Testing
-  "python.testing.pytestArgs": [
-    "lattebot"
-  ],
+  "python.testing.pytestArgs": ["lattebot"],
   "python.testing.unittestEnabled": false,
-  "python.testing.pytestEnabled": true,
+  "python.testing.pytestEnabled": true
 }
