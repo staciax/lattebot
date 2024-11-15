@@ -108,11 +108,11 @@ class LatteBot(commands.AutoShardedBot):
         self.bot_app_info = await self.application_info()
         self.owner_ids = [self.bot_app_info.owner.id]
 
-        await self.application_emojis_load()
+        await self.load_application_emojis()
 
-        await self.cogs_load()
+        await self.load_cogs()
 
-    async def application_emojis_load(self) -> None:
+    async def load_application_emojis(self) -> None:
         application_emojis = await self.fetch_application_emojis()
         self._application_emojis = {emoji.name: emoji for emoji in application_emojis}
 
@@ -127,7 +127,7 @@ class LatteBot(commands.AutoShardedBot):
         except Exception as e:
             log.exception('Failed to sync guild %s.', self.support_guild_id, exc_info=e)
 
-    async def cogs_load(self) -> None:
+    async def load_cogs(self) -> None:
         await asyncio.gather(*[self.load_extension(extension) for extension in INITIAL_EXTENSIONS])
 
     async def cogs_unload(self) -> None:
