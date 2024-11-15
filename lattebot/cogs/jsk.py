@@ -81,7 +81,7 @@ class Jishaku(*STANDARD_FEATURES, name='jishaku'):  # type: ignore[misc]
 
     @Feature.Command(name='jishaku', aliases=['jsk'], invoke_without_command=True, ignore_extra=False)  # type: ignore[arg-type]
     async def jsk(self, ctx: commands.Context[LatteBot]) -> None:
-        """The Jishaku debug and diagnostic commands.
+        """Display the Jishaku debug and diagnostic commands.
 
         This command on its own gives a status brief.
         All other functionality is within its subcommands.
@@ -96,7 +96,6 @@ class Jishaku(*STANDARD_FEATURES, name='jishaku'):  # type: ignore[misc]
     @Feature.Command(parent='jsk', name='source', aliases=['src'])  # type: ignore[arg-type, call-arg]
     async def jsk_source(self, ctx: commands.Context[LatteBot], *, command_name: str) -> None:
         """Display the source code for an app command."""
-
         # NOTE: custom for support app command
 
         command = self.bot.get_command(command_name) or self.bot.tree.get_command(command_name)
@@ -144,7 +143,6 @@ class Jishaku(*STANDARD_FEATURES, name='jishaku'):  # type: ignore[misc]
         argument: codeblock_converter,  # type: ignore[valid-type]
     ) -> None:
         """Direct evaluation of Python code."""
-
         if TYPE_CHECKING:
             argument: Codeblock = argument  # type: ignore[no-redef]  # noqa: PLW0127
 

@@ -34,3 +34,10 @@ lint: # Run the linter
 format: # Format the code
 	ruff check lattebot --fix
 	ruff format lattebot
+
+.PHONY: test
+.SILENT: test
+test: # Run the tests
+	$(python) -m pytest
+	# coverage run --source=lattebot -m pytest
+	# coverage report --show-missing

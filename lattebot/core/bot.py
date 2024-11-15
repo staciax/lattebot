@@ -1,10 +1,10 @@
 import asyncio
 import logging
-from typing import Any
+from typing import Any, Sequence  # noqa: UP035
 
 import aiohttp
 import discord
-from discord import MissingApplicationID
+from discord import MissingApplicationID, utils
 from discord.ext import commands
 
 from .config import settings
@@ -21,6 +21,7 @@ INITIAL_EXTENSIONS = (
     'lattebot.cogs.events',
     'lattebot.cogs.jsk',
     'lattebot.cogs.test',
+    'lattebot.cogs.about',
 )
 
 
@@ -28,6 +29,7 @@ class LatteBot(commands.AutoShardedBot):
     user: discord.ClientUser
     bot_app_info: discord.AppInfo
     tree: LatteTree  # type: ignore[assignment]
+    translator: Translator
 
     def __init__(self) -> None:
         # intents
@@ -56,6 +58,7 @@ class LatteBot(commands.AutoShardedBot):
             tree_cls=LatteTree,
             activity=discord.Activity(type=discord.ActivityType.listening, name='latte ♡ ₊˚'),
         )
+        self._application_emojis: dict[str, discord.Emoji] = {}
 
     async def on_ready(self) -> None:
         log.info(
@@ -86,22 +89,35 @@ class LatteBot(commands.AutoShardedBot):
             permissions=discord.Permissions(settings.INVITE_PERMISSIONS),
         )
 
+    @property
+    def get_application_emojis(self) -> Sequence[discord.Emoji]:
+        return utils.SequenceProxy(self._application_emojis.values())
+
+    def get_application_emoji(self, /, name: str) -> discord.Emoji | None:
+        return self._application_emojis.get(name)
+
     async def setup_hook(self) -> None:
         self.session = aiohttp.ClientSession()
 
-        self.translator = Translator(self, (discord.Locale.thai,))
+        self.translator = Translator(
+            self,
+            locales=(discord.Locale.thai,),
+            default_locale=discord.Locale.american_english,
+        )
         await self.tree.set_translator(self.translator)
 
         self.bot_app_info = await self.application_info()
         self.owner_ids = [self.bot_app_info.owner.id]
 
-        await self.cogs_load()
-        # await self.tree_sync()
+        await self.load_application_emojis()
+
+        await self.load_cogs()
+
+    async def load_application_emojis(self) -> None:
+        application_emojis = await self.fetch_application_emojis()
+        self._application_emojis = {emoji.name: emoji for emoji in application_emojis}
 
     async def tree_sync(self, guild_only: bool = False) -> None:
-        # load translations before syncing
-        await self.translator.load_translations()
-
         # tree sync application commands
         if not guild_only:
             await self.tree.sync()
@@ -112,10 +128,7 @@ class LatteBot(commands.AutoShardedBot):
         except Exception as e:
             log.exception('Failed to sync guild %s.', self.support_guild_id, exc_info=e)
 
-        # clear
-        self.translator.clear()
-
-    async def cogs_load(self) -> None:
+    async def load_cogs(self) -> None:
         await asyncio.gather(*[self.load_extension(extension) for extension in INITIAL_EXTENSIONS])
 
     async def cogs_unload(self) -> None:

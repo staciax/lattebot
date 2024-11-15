@@ -14,15 +14,18 @@ dependencies = [
   "uvloop>=0.21.0; sys_platform != 'win32'",
   "pyyaml>=6.0.2,<7.0.0",
   "anyio>=4.6.2.post1,<5.0.0",
+  "pygit2>=1.16.0,<2.0.0",
 ]
 
 [dependency-groups]
 dev = [
   "mypy>=1.13.0,<2.0.0",
-  "ruff>=0.7.3,<1.0.0",
-  "coverage>=7.6.4,<8.0.0",
+  "ruff>=0.7.4,<1.0.0",
+  "coverage>=7.6.5,<8.0.0",
   "watchfiles>=0.24.0,<1.0.0",
   "types-pyyaml>=6.0.12.20240917,<7.0.0",
+  "pytest>=8.3.3,<9.0.0",
+  "pytest-cov>=6.0.0,<7.0.0",
 ]
 
 [tool.uv.sources]
@@ -36,7 +39,7 @@ exclude = [".venv"]
 [tool.ruff]
 line-length = 120
 target-version = "py313"
-exclude = [".git", ".ruff_cache", '.mypy_cache', ".venv", ".vscode"]
+exclude = [".git", ".ruff_cache", '.mypy_cache', ".pytest_cache", ".venv", ".vscode"]
 
 [tool.ruff.format]
 preview = true
@@ -54,6 +57,7 @@ select = [
   "C4", # flake8-comprehensions
   "UP", # pyupgrade
   "N",  # pep8-naming
+  "D",  # pydocstyle 
 
   "YTT",   # flake8-2020
   "ANN",   # flake8-annotations
@@ -70,6 +74,7 @@ select = [
   "G",     # flake8-logging-format
   "PIE",   # flake8-pie
   "PYI",   # flake8-pyi
+  "PT",    # flake8-pytest-style
   "Q",     # flake8-quotes
   "RSE",   # flake8-raise 
   "RET",   # flake8-return
@@ -89,12 +94,19 @@ select = [
 
   # maybe enable later
   # "TID",   # flake8-tidy-imports
-  # "PT",    # flake8-pytest-style 
   # "ICN",   # flake8-import-conventions
 ]
 ignore = [
   "ANN401",  # any-type
   "COM812",  # trailing-comma-missing
+  "D100",    # undocumented-public-module
+  "D101",    # undocumented-public-class
+  "D102",    # undocumented-public-method
+  "D103",    # undocumented-public-function
+  "D104",    # undocumented-public-package
+  "D105",    # undocumented-magic-method
+  "D106",    # undocumented-public-nested-class
+  "D107",    # undocumented-public-init
   "E501",    # line-too-long, handled by black
   "PLR6301", # no-self-use
   "TRY003",  # raise-vanilla-args
@@ -103,6 +115,9 @@ ignore = [
 
 [tool.ruff.lint.pyflakes]
 extend-generics = ["discord.app_commands.CommandTree"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
@@ -118,9 +133,17 @@ runtime-evaluated-base-classes = ["pydantic.BaseModel"]
 ignore-variadic-names = true
 
 [tool.ruff.lint.per-file-ignores]
-"lattebot/logging.py" = ["A005"]
+"lattebot/logging.py" = [
+  "A005", # builtin-module-shadowing, allowed filename logging.py
+]
+"lattebot/tests/**/*.py" = [
+  "S101", # assert, allowed in tests 
+]
 
 [tool.coverage.report]
 show_missing = true
 precision = 2
 exclude_also = ["if TYPE_CHECKING:"]
+
+[tool.pytest.ini_options]
+addopts = "-vv --showlocals --tb=short --strict -p no:warnings --cov=lattebot --cov-append"
