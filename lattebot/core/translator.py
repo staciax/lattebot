@@ -127,29 +127,34 @@ class AppCommandTranslator:
 
         if not keys:
             log.warning(
-                'No translation keys found for message "%s" in locale "%s", location "%s", type "%s".',
-                string.message,
-                locale.value,
-                context.location.name,
-                type(context.data).__qualname__,
+                'Translation keys not found for message %s in locale %s, location %s.',
+                repr(string.message),
+                repr(locale.value),
+                repr(context.location.name),
             )
             return None
 
         locale_translations = self._translations.get(locale.value)
 
         if not locale_translations:
-            log.warning('No command translations available for locale "%s".', locale.value)
+            # binding = context.data.binding if hasattr(context.data, 'binding') else None
+            log.warning(
+                'Translations not found for locale %s in location %s, message %s.',
+                repr(locale.value),
+                repr(context.location.name),
+                repr(string.message),
+                # repr(binding),
+            )
             return None
 
         translated_string = self._get_string_by_keys(locale_translations, keys)
 
         if not translated_string:
             log.warning(
-                'Translation not found for message "%s" in locale "%s", location "%s", type "%s".',
-                string.message,
-                locale.value,
-                context.location.name,
-                type(context.data).__qualname__,
+                'Translation not found for message %s in locale %s, location %s',
+                repr(string.message),
+                repr(locale.value),
+                repr(context.location.name),
             )
             return None
 
