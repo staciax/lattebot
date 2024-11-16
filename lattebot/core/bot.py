@@ -96,6 +96,10 @@ class LatteBot(commands.AutoShardedBot):
     def get_application_emoji(self, /, name: str) -> discord.Emoji | None:
         return self._application_emojis.get(name)
 
+    def clear(self) -> None:
+        super().clear()
+        self._application_emojis.clear()
+
     async def setup_hook(self) -> None:
         self.session = aiohttp.ClientSession()
 
