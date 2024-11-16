@@ -87,7 +87,7 @@ class Admin(LatteCog, name='admin'):
         else:
             commands_synced = await self.bot.tree.sync()
 
-        await interaction.followup.send(f'Synced {len(commands_synced)} commands.', ephemeral=True)
+        await interaction.followup.send(f'Synced {len(commands_synced)} commands.', ephemeral=True, silent=True)
 
     # @extension_load.autocomplete('extension')
     # @extension_unload.autocomplete('extension')

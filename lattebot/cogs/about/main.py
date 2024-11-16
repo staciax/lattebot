@@ -131,7 +131,7 @@ class About(LatteCog, name='about'):
             emoji=self.bot.get_application_emoji('stacia_dev'),
         )
 
-        await interaction.response.send_message(embed=embed, view=view)
+        await interaction.response.send_message(embed=embed, view=view, silent=True)
 
     @app_commands.command(name=_('support'), description=_('Sends the support server of the bot.'))
     @bot_has_permissions(send_messages=True, embed_links=True)
@@ -155,4 +155,4 @@ class About(LatteCog, name='about'):
             emoji=self.bot.get_application_emoji('stacia_dev'),
         )
 
-        await interaction.response.send_message(embed=embed, view=view)
+        await interaction.response.send_message(embed=embed, view=view, silent=True)
