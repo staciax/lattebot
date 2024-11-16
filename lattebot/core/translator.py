@@ -381,7 +381,7 @@ class Translator(_Translator):
         await self._ready.wait()
 
     def is_ready(self) -> bool:
-        return self.is_ready is not None and self._ready.is_set()
+        return bool(self._ready is not None and self._ready.is_set())
 
     # load_all_locale_files
     async def initialize_translations(self) -> None:
