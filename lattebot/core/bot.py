@@ -131,7 +131,7 @@ class LatteBot(commands.AutoShardedBot):
     async def load_cogs(self) -> None:
         await asyncio.gather(*[self.load_extension(extension) for extension in INITIAL_EXTENSIONS])
 
-    async def cogs_unload(self) -> None:
+    async def unload_cogs(self) -> None:
         await asyncio.gather(*[self.unload_extension(extension) for extension in INITIAL_EXTENSIONS])
 
     async def on_message(self, message: discord.Message, /) -> None:
@@ -176,7 +176,7 @@ class LatteBot(commands.AutoShardedBot):
     async def close(self) -> None:
         log.info('Bot is shutting down...')
 
-        await self.cogs_unload()
+        await self.unload_cogs()
         await self.session.close()
 
         await super().close()
