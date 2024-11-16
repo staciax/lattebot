@@ -7,6 +7,7 @@ from typing import Generator  # noqa: UP035
 from discord import utils
 
 # TODO: improve logging level, location, etc.
+# TODO: migrate to loguru, https://github.com/Delgan/loguru
 
 
 class RemoveNoise(logging.Filter):
