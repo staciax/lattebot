@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import contextlib
 import inspect
 import logging
@@ -359,16 +360,26 @@ class Translator(_Translator):
         self.app_command_translator = AppCommandTranslator(self)
         self.text_translator = TextTranslator(self)
 
+        self._ready: asyncio.Event | None = None
+
     async def load(self) -> None:
+        self._ready = asyncio.Event()
         # self.bot.loop.create_task(self.app_command_translator.load(), name='translator-app-command-load')
         # self.bot.loop.create_task(self.text_translator.load(), name='translator-text-load')
         self.bot.loop.create_task(self.initialize_translations(), name='translator-initialize-translations')
+
         log.info('loaded')
 
     async def unload(self) -> None:
         await self.app_command_translator.clear()
         await self.text_translator.clear()
+        self._ready = None
         log.info('unloaded')
+
+    async def wait_until_ready(self) -> None:
+        if self._ready is None:
+            raise RuntimeError('Translator is not loaded')
+        await self._ready.wait()
 
     # load_all_locale_files
     async def initialize_translations(self) -> None:
@@ -387,6 +398,8 @@ class Translator(_Translator):
 
                 await self.text_translator.load_from_locale_dir(locale, locale_dir)
                 await self.app_command_translator.load_from_locale_dir(locale, locale_dir, cog)
+
+        self._ready.set()
 
     @overload
     async def translate(self, string: locale_str, locale: Locale, context: OtherTranslationContext) -> str: ...
