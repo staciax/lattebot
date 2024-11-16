@@ -188,12 +188,12 @@ class AppCommandTranslator:
     def _get_string_by_keys(self, data: dict[str, Any], keys: list[str]) -> str | None:
         try:
             value = reduce(lambda d, k: d[k], keys, data)
-        except (KeyError, TypeError):
-            log.exception('Failed to retrieve value by keys "%s".', ' -> '.join(keys))
-        else:
             if isinstance(value, str):
                 return value
             log.error('Value for keys "%s" is not a string.', ' -> '.join(keys))
+        except (KeyError, TypeError):
+            log.exception('Failed to retrieve value by keys "%s".', ' -> '.join(keys))
+
         return None
 
     def _get_translation_keys(self, context: TranslationContextTypes) -> list[str]:
