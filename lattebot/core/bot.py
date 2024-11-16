@@ -18,10 +18,11 @@ log = logging.getLogger('latte')
 description = "Hello, I'm latte bot, a bot made by stacia."
 
 INITIAL_EXTENSIONS = (
+    'lattebot.cogs.about',
+    'lattebot.cogs.admin',
     'lattebot.cogs.events',
     'lattebot.cogs.jsk',
     'lattebot.cogs.test',
-    'lattebot.cogs.about',
 )
 
 

@@ -1,0 +1,49 @@
+ext:
+    name: ext
+    description: Extension management commands.
+ext load:
+    name: load
+    description: Load an extension.
+    options:
+        extension:
+            display_name: extension
+            description: extension name
+            choices:
+                lattebot.cogs.about: lattebot.cogs.about
+                lattebot.cogs.admin: lattebot.cogs.admin
+                lattebot.cogs.events: lattebot.cogs.events
+                lattebot.cogs.jsk: lattebot.cogs.jsk
+                lattebot.cogs.test: lattebot.cogs.test
+ext unload:
+    name: unload
+    description: Unload an extension.
+    options:
+        extension:
+            display_name: extension
+            description: extension name
+            choices:
+                lattebot.cogs.about: lattebot.cogs.about
+                lattebot.cogs.admin: lattebot.cogs.admin
+                lattebot.cogs.events: lattebot.cogs.events
+                lattebot.cogs.jsk: lattebot.cogs.jsk
+                lattebot.cogs.test: lattebot.cogs.test
+ext reload:
+    name: reload
+    description: Reload an extension.
+    options:
+        extension:
+            display_name: extension
+            description: extension name
+            choices:
+                lattebot.cogs.about: lattebot.cogs.about
+                lattebot.cogs.admin: lattebot.cogs.admin
+                lattebot.cogs.events: lattebot.cogs.events
+                lattebot.cogs.jsk: lattebot.cogs.jsk
+                lattebot.cogs.test: lattebot.cogs.test
+sync:
+    name: sync
+    description: Syncs the application commands to Discord.
+    options:
+        guild_id:
+            display_name: guild_id
+            description: target guild id

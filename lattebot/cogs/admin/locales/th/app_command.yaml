@@ -1,0 +1,49 @@
+ext:
+    name: ''
+    description: ''
+ext load:
+    name: ''
+    description: ''
+    options:
+        extension:
+            display_name: ''
+            description: ''
+            choices:
+                lattebot.cogs.about: ''
+                lattebot.cogs.admin: ''
+                lattebot.cogs.events: ''
+                lattebot.cogs.jsk: ''
+                lattebot.cogs.test: ''
+ext unload:
+    name: ''
+    description: ''
+    options:
+        extension:
+            display_name: ''
+            description: ''
+            choices:
+                lattebot.cogs.about: ''
+                lattebot.cogs.admin: ''
+                lattebot.cogs.events: ''
+                lattebot.cogs.jsk: ''
+                lattebot.cogs.test: ''
+ext reload:
+    name: ''
+    description: ''
+    options:
+        extension:
+            display_name: ''
+            description: ''
+            choices:
+                lattebot.cogs.about: ''
+                lattebot.cogs.admin: ''
+                lattebot.cogs.events: ''
+                lattebot.cogs.jsk: ''
+                lattebot.cogs.test: ''
+sync:
+    name: ''
+    description: ''
+    options:
+        guild_id:
+            display_name: ''
+            description: ''
