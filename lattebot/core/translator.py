@@ -363,7 +363,6 @@ class Translator(_Translator):
         self._ready: asyncio.Event | None = None
 
     async def load(self) -> None:
-        self._ready = asyncio.Event()
         # self.bot.loop.create_task(self.app_command_translator.load(), name='translator-app-command-load')
         # self.bot.loop.create_task(self.text_translator.load(), name='translator-text-load')
         self.bot.loop.create_task(self.initialize_translations(), name='translator-initialize-translations')
@@ -381,9 +380,14 @@ class Translator(_Translator):
             raise RuntimeError('Translator is not loaded')
         await self._ready.wait()
 
+    def is_ready(self) -> bool:
+        return self.is_ready is not None and self._ready.is_set()
+
     # load_all_locale_files
     async def initialize_translations(self) -> None:
         await self.bot.wait_until_ready()
+
+        self._ready = asyncio.Event()
 
         # TODO: add support for loading translations from other sources such as global locales folder, etc.
 
