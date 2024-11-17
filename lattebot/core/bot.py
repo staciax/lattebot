@@ -118,6 +118,8 @@ class LatteBot(commands.AutoShardedBot):
 
         await self.load_cogs()
 
+        await self.tree._attach_command_models()
+
     async def load_application_emojis(self) -> None:
         application_emojis = await self.fetch_application_emojis()
         self._application_emojis = {emoji.name: emoji for emoji in application_emojis}
