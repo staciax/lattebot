@@ -33,6 +33,9 @@ log = logging.getLogger('latte.cogs.jsk')
 os.environ['JISHAKU_NO_UNDERSCORE'] = 'True'
 os.environ['JISHAKU_HIDE'] = 'True'
 
+# TODO: custom ReplResponseReactor for full support app command and enable this
+# os.environ['JISHAKU_NO_DM_TRACEBACK'] = 'True'
+
 
 def owner_only[T]() -> Callable[[T], T]:
     async def actual_check(interaction: discord.Interaction[LatteBot]) -> bool:
@@ -149,6 +152,7 @@ class Jishaku(*STANDARD_FEATURES, name='jishaku'):  # type: ignore[misc]
         arg_dict = get_var_dict_from_ctx(ctx, '')
         arg_dict.update(get_var_dict_from_ctx(ctx, '_'))
         arg_dict['_'] = self.last_result  # type: ignore[has-type]
+        # arg_dict['ref'] = ctx.message.reference or None
 
         scope = self.scope
 
