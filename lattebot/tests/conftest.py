@@ -1,4 +1,4 @@
-from collections.abc import AsyncGenerator  # noqa: TCH003
+from collections.abc import AsyncGenerator  # noqa: TC003
 from typing import Any
 
 import pytest
