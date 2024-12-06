@@ -24,10 +24,10 @@ if TYPE_CHECKING:
     type Coro[T] = Coroutine[Any, Any, T]
     type Binding = Group | commands.Cog
     type ContextMenuCallback[GroupT: Binding] = (
-        Callable[[GroupT, 'Interaction[LatteBot]', Member], Coro[Any]]
-        | Callable[[GroupT, 'Interaction[LatteBot]', User], Coro[Any]]
-        | Callable[[GroupT, 'Interaction[LatteBot]', Message], Coro[Any]]
-        | Callable[[GroupT, 'Interaction[LatteBot]', Member | User], Coro[Any]]
+        Callable[[GroupT, Interaction[LatteBot], Member], Coro[Any]]
+        | Callable[[GroupT, Interaction[LatteBot], User], Coro[Any]]
+        | Callable[[GroupT, Interaction[LatteBot], Message], Coro[Any]]
+        | Callable[[GroupT, Interaction[LatteBot], Member | User], Coro[Any]]
     )
 else:
     type ContextMenuCallback[T] = Callable[..., Coro[T]]
