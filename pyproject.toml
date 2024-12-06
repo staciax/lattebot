@@ -39,7 +39,14 @@ exclude = [".venv"]
 [tool.ruff]
 line-length = 120
 target-version = "py313"
-exclude = [".git", ".ruff_cache", '.mypy_cache', ".pytest_cache", ".venv", ".vscode"]
+exclude = [
+  ".git",
+  ".ruff_cache",
+  '.mypy_cache',
+  ".pytest_cache",
+  ".venv",
+  ".vscode",
+]
 
 [tool.ruff.format]
 preview = true
@@ -79,7 +86,7 @@ select = [
   "RSE",   # flake8-raise 
   "RET",   # flake8-return
   "SIM",   # flake8-simplify
-  "TC",   # flake8-type-checking
+  "TC",    # flake8-type-checking
   "ARG",   # flake8-unused-arguments
   "PTH",   # flake8-use-pathlib
 
