@@ -5,10 +5,8 @@ import uvloop
 from lattebot.core.bot import LatteBot
 from lattebot.logging import setup_logging
 
-# inspired by robodanny - Danny (Rapptz)
-
-# TODO: coverage, tests, etc.
 # TODO: pre-commit for linting, formatting, etc.
+# TODO: implement typer lib
 
 
 async def run_bot() -> None:
