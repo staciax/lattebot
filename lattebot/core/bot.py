@@ -23,6 +23,7 @@ INITIAL_EXTENSIONS = (
     'lattebot.cogs.events',
     'lattebot.cogs.jsk',
     'lattebot.cogs.test',
+    'lattebot.cogs.help',
 )
 
 
