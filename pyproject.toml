@@ -42,7 +42,7 @@ target-version = "py313"
 exclude = [
   ".git",
   ".ruff_cache",
-  '.mypy_cache',
+  ".mypy_cache",
   ".pytest_cache",
   ".venv",
   ".vscode",
@@ -106,6 +106,7 @@ select = [
 ignore = [
   "ANN401",  # any-type
   "COM812",  # trailing-comma-missing
+  "COM819", # prohibited-trailing-comma
   "D100",    # undocumented-public-module
   "D101",    # undocumented-public-class
   "D102",    # undocumented-public-method
