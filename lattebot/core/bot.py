@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import asyncio
 import logging
-from typing import Any, Sequence  # noqa: UP035
+from typing import TYPE_CHECKING, Any
 
 import aiohttp
 import discord
@@ -10,6 +12,9 @@ from discord.ext import commands
 from .config import settings
 from .translator import Translator
 from .tree import LatteTree
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 __all__ = ('LatteBot',)
 

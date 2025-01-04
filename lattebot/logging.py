@@ -1,10 +1,15 @@
+from __future__ import annotations
+
 import contextlib
 import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
-from typing import Generator  # noqa: UP035
+from typing import TYPE_CHECKING
 
 from discord import utils
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 # TODO: improve logging level, location, etc.
 # TODO: migrate to loguru, https://github.com/Delgan/loguru

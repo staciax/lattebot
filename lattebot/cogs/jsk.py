@@ -8,7 +8,7 @@ import io
 import logging
 import os
 import pathlib
-from typing import TYPE_CHECKING, Any, Callable  # noqa: UP035
+from typing import TYPE_CHECKING, Any
 
 import discord
 from discord import app_commands
@@ -26,6 +26,8 @@ from jishaku.paginators import PaginatorInterface, WrappedPaginator, use_file_ch
 from jishaku.repl import AsyncCodeExecutor, get_var_dict_from_ctx  # type: ignore[attr-defined]
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from lattebot.core.bot import LatteBot
 
 log = logging.getLogger('latte.cogs.jsk')

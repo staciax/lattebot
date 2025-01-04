@@ -3,7 +3,7 @@ from __future__ import annotations
 import contextlib
 import inspect
 import logging
-from typing import TYPE_CHECKING, Any, Callable, Coroutine, Generic, Iterable, Self, Sequence, TypeVar  # noqa: UP035
+from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar
 
 import discord
 from discord import AppCommandContext, AppInstallationType, Interaction, Member, Message, User, app_commands
@@ -17,6 +17,8 @@ __all__ = (
 
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Coroutine, Iterable, Sequence
+
     from discord.app_commands import Group, locale_str
 
     from lattebot.core.bot import LatteBot

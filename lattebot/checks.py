@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable  # noqa: UP035
+from typing import TYPE_CHECKING
 
 import discord
 from discord import app_commands
@@ -16,6 +16,8 @@ __all__ = (
 
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from lattebot.core.bot import LatteBot
 
 
