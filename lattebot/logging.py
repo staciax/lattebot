@@ -6,7 +6,7 @@ from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from discord import utils
+import discord
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -32,6 +32,8 @@ def setup_logging(level: int = logging.INFO) -> Generator[None]:
 
     try:
         # __enter__
+        discord.utils.setup_logging()
+
         max_bytes = 32 * 1024 * 1024  # 32 MiB
 
         logging.getLogger('discord').setLevel(logging.INFO)
@@ -56,14 +58,7 @@ def setup_logging(level: int = logging.INFO) -> Generator[None]:
             backupCount=5,
         )
         rotating_file_handler.setFormatter(fmt)
-
-        stream_handler = logging.StreamHandler()
-        stream_handler.setFormatter(
-            utils._ColourFormatter() if utils.stream_supports_colour(stream_handler.stream) else fmt
-        )
-
         log.addHandler(rotating_file_handler)
-        log.addHandler(stream_handler)
 
         yield
     finally:
