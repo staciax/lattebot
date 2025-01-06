@@ -15,6 +15,7 @@ dependencies = [
   "pyyaml>=6.0.2,<7.0.0",
   "anyio>=4.8.0,<5.0.0",
   "pygit2>=1.16.0,<2.0.0",
+  "cchardet==2.2.0a2; python_version < '3.14'",
 ]
 
 [dependency-groups]
