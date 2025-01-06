@@ -106,7 +106,7 @@ select = [
 ignore = [
   "ANN401",  # any-type
   "COM812",  # trailing-comma-missing
-  "COM819", # prohibited-trailing-comma
+  "COM819",  # prohibited-trailing-comma
   "D100",    # undocumented-public-module
   "D101",    # undocumented-public-class
   "D102",    # undocumented-public-method
