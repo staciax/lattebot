@@ -145,7 +145,7 @@ ignore-variadic-names = true
 "lattebot/logging.py" = [
   "A005", # builtin-module-shadowing, allowed filename logging.py
 ]
-"lattebot/tests/**/*.py" = [
+"tests/**/*.py" = [
   "S101", # assert, allowed in tests 
 ]
 
@@ -155,4 +155,4 @@ precision = 2
 exclude_also = ["if TYPE_CHECKING:"]
 
 [tool.pytest.ini_options]
-addopts = "-vv --showlocals --tb=short --strict -p no:warnings --cov=lattebot --cov-append"
+addopts = "-vv --showlocals --tb=short --strict -p no:warnings --cov=lattebot --cov=tests --cov-append"
