@@ -13,7 +13,7 @@
   },
 
   // Ruff
-  "ruff.lint.args": ["--unfixable=F401"],
+  "ruff.configuration": "${workspaceFolder}/.vscode/ruff.toml",
 
   // Python
   "python.analysis.completeFunctionParens": false,
