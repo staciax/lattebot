@@ -154,7 +154,7 @@ class LatteBot(commands.AutoShardedBot):
         await self.process_commands(message)
 
     async def on_error(self, event_method: str, /, *args: Any, **kwargs: Any) -> None:
-        log.error('Ignoring exception in %s', event_method, exc_info=True)
+        log.error('Ignoring exception in %s', event_method)
 
     async def load_extension(self, name: str, *, package: str | None = None) -> None:
         try:
