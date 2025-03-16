@@ -169,6 +169,12 @@ wheels = [
 ]
 
 [[package]]
+name = "cchardet"
+version = "2.2.0a2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/4c/c2/0e4364a4d6ce1a67f46bbce0731dee4d910ae1ee4467bd36ee68bd0cdd8b/cchardet-2.2.0a2.tar.gz", hash = "sha256:dd72bb1872eca9d279055bc7c3491a62ce1db7bfd330b7d48d7239a59c2f9823", size = 1111020 }
+
+[[package]]
 name = "cffi"
 version = "1.17.1"
 source = { registry = "https://pypi.org/simple" }
@@ -335,6 +341,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "anyio" },
+    { name = "cchardet", marker = "python_full_version < '3.14'" },
     { name = "discord-py", extra = ["speed"] },
     { name = "jishaku" },
     { name = "pydantic" },
@@ -358,6 +365,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "anyio", specifier = ">=4.8.0,<5.0.0" },
+    { name = "cchardet", marker = "python_full_version < '3.14'", specifier = "==2.2.0a2" },
     { name = "discord-py", extras = ["speed"], specifier = ">=2.5.2,<2.6.0" },
     { name = "jishaku", specifier = ">=2.6.0,<3.0.0" },
     { name = "pydantic", specifier = ">2.0" },
