@@ -1,44 +1,51 @@
 ARG PYTHON_VERSION=3.13
-FROM ghcr.io/astral-sh/uv:python${PYTHON_VERSION}-bookworm-slim AS builder
 
+FROM ghcr.io/astral-sh/uv:bookworm-slim AS builder
+ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
+
+# Configure the Python directory so it is consistent
+ENV UV_PYTHON_INSTALL_DIR /python
+
+# Only use the managed Python version
+ENV UV_PYTHON_PREFERENCE=only-managed
+
+# Required for installing Dependencies 
 RUN apt-get update && apt-get install -y --no-install-recommends \
 		build-essential \
         git \
+        ca-certificates \ 
     &&  rm -rf /var/lib/apt/lists/*
 
-# Enable bytecode compilation
-ENV UV_COMPILE_BYTECODE=1
+# Install Python before the project for caching
+RUN uv python install ${PYTHON_VERSION}
 
-# Copy from the cache instead of linking since it's a mounted volume
-ENV UV_LINK_MODE=copy
-
-# Change the working directory to the `app` directory
 WORKDIR /app
 
-# Install the project's dependencies using the lockfile and settings
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --frozen --no-install-project --no-dev --no-editable
 
-# Copy the project into the intermediate image
 ADD . /app
 
-# Sync the project 
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --no-editable
 
-FROM python:${PYTHON_VERSION}-slim-bookworm
-
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+FROM debian:bookworm-slim
 
 WORKDIR /app
 
+# Copy the Python version
+COPY --from=builder --chown=python:python /python /python
+# SSL certificates are required for HTTPS requests
+COPY --from=builder --chown=python:python /etc/ssl/certs /etc/ssl/certs 
+# For pygit2
+COPY --from=builder --chown=python:python /usr/bin/git /usr/bin/git
+
 COPY --from=builder --chown=app:app /app /app
-# COPY --from=builder /usr/bin/git /usr/bin/git
 
 ENV PATH="/app/.venv/bin:$PATH"
+ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 
 CMD ["python", "launcher.py"]
 
