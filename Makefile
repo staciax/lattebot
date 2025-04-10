@@ -1,6 +1,3 @@
-venv=.venv
-python=$(venv)/bin/python
-
 default: help
 
 .PHONY: help
@@ -10,34 +7,34 @@ help:
 .PHONY: run
 .SILENT: run
 run: # Run the app 
-	$(python) launcher.py
+	uv run launcher.py
 
 .PHONY: dev
 .SILENT: dev
 dev: # Run the app with coverage
-	$(python) -m coverage run --source=lattebot launcher.py 
+	uv run coverage run --source=lattebot launcher.py 
 
 .PHONY: report
 .SILENT: report
 report: # See the coverage report
-	$(python) -m coverage report
+	uv run coverage report
 
 .PHONY: lint
 .SILENT: lint
 lint: # Run the linter
-	mypy lattebot
-	ruff check lattebot
-	ruff format lattebot --check
+	uv run mypy lattebot
+	uv run ruff check lattebot
+	uv run ruff format lattebot --check
 
 .PHONY: format
 .SILENT: format
 format: # Format the code
-	ruff check lattebot --fix
-	ruff format lattebot
+	uv run ruff check lattebot --fix
+	uv run ruff format lattebot
 
 .PHONY: test
 .SILENT: test
 test: # Run the tests
-	$(python) -m pytest
-	# coverage run --source=lattebot -m pytest
-	# coverage report --show-missing
+	uv run pytest
+	# uv run coverage run --source=lattebot -m pytest
+	# uv run coverage report --show-missing
