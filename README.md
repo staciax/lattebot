@@ -11,7 +11,7 @@ Lattebot started as one of my first programming projects, created for a close gr
 ## Requirements
 
 - [Python](https://www.python.org) 3.13 or higher
-- [uv](https://docs.astral.sh/uv) Python package and project manager.
+- [uv](https://docs.astral.sh/uv) 0.6.x or higher
 
 ## Installation
 
@@ -39,6 +39,21 @@ uv run python pre_start.py
 
 ```bash
 uv run python launcher.py
+```
+
+### Docker
+
+If you prefer to run lattebot in a Docker container, you can use the provided `docker-compose.yml` file. Make sure to set up your `.env` file as described above.
+Then, you can build and run the container with the following commands:
+
+```bash
+docker-compose build
+```
+
+Run the container:
+
+```bash
+docker-compose up
 ```
 
 ## License
