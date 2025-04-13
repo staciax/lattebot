@@ -4,6 +4,10 @@
 <h3 align="center">lattebot</h5>
 <h4 align="center">A cute little Discord bot, created during my fun and free moments.</h5>
 
+## Introduction
+
+Lattebot started as one of my first programming projects, created for a close group of friends who play games together. What started as a simple Discord bot has evolved through multiple versions (v1, v2, and more) to become the current iteration you see today. Each version represents a milestone in my programming journey, with improvements in code structure, features, and efficiency. This repository showcases not just a Discord bot, but also my growth as a developer from my early coding days to now.
+
 
 ## Requirements
 
