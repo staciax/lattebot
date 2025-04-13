@@ -29,14 +29,13 @@ cp .env.example .env
 
 2. Create a new Discord application and bot at the [Discord Developer Portal](https://discord.com/developers/applications).
 3. Set up the required environment variables in the `.env` file
-4. Set up the database by running the following command:
-5. Sync application commands by running the following command:
+4. Sync application commands by running the following command:
 
 ```bash
 uv run python pre_start.py
 ```
 
-6. Start the bot by running the following command:
+5. Start the bot by running the following command:
 
 ```bash
 uv run python launcher.py
