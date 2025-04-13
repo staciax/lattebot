@@ -46,3 +46,11 @@ uv run python launcher.py
 ## License
 
 This project is licensed under the GNUv3 License - see the [LICENSE](LICENSE.md) file for details.
+
+## Appreciation Note
+
+A heartfelt thank you to all my friends in the Latte group on Discord. Without your support, encouragement, and the countless hours of gaming together, this project would never have come to life, and I might not have embarked on this journey to become a developer.
+
+Our friendship, our shared memories of late-night gaming sessions, inside jokes, and all the chaotic moments we've experienced together have been the true inspiration behind lattebot from the very beginning.
+
+Thanks for sticking with me through it all. You guys mean more to me than you probably realize. ✌️
