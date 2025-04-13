@@ -16,7 +16,8 @@ Lattebot started as one of my first programming projects, created for a close gr
 ## Installation
 
 ```bash
-uv sync
+uv sync --no-dev
+# for development just remove --no-dev
 ```
 
 ## Configuration
