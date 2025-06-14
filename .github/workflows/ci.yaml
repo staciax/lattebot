@@ -31,3 +31,10 @@ jobs:
       
       - name: Test
         run: uv run make tests
+        env:
+          PROJECT_NAME: 'lattebot'
+          APPLICATION_ID: 0
+          SUPPORT_GUILD_ID: 0
+          GUILD_WEBHOOK_ID: 0
+          GUILD_WEBHOOK_TOKEN: 'fake-guild-webhook-token'
+          DISCORD_TOKEN: 'fake-discord-token'
