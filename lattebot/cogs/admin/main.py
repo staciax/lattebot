@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from lattebot.core.bot import LatteBot
 
 # NOTE: Hardcoded list of extensions (Should be same as in the INITIAL_EXTENSIONS in lattebot/core/bot.py)
-EXTENSIONS = Literal[
+type EXTENSIONS = Literal[
     'lattebot.cogs.about',
     'lattebot.cogs.admin',
     'lattebot.cogs.events',
@@ -42,7 +42,7 @@ class Admin(LatteCog, name='admin'):
     @app_commands.rename(extension=_('extension'))
     @bot_has_permissions(send_messages=True, embed_links=True)
     @owner_only()
-    async def extension_load(self, interaction: Interaction[LatteBot], extension: Literal[EXTENSIONS]) -> None:
+    async def extension_load(self, interaction: Interaction[LatteBot], extension: EXTENSIONS) -> None:
         await interaction.response.defer(ephemeral=True)
         await self.bot.load_extension(extension)
 
