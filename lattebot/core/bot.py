@@ -35,7 +35,7 @@ INITIAL_EXTENSIONS = (
 class LatteBot(commands.AutoShardedBot):
     user: discord.ClientUser
     bot_app_info: discord.AppInfo
-    tree: LatteTree  # type: ignore[assignment]
+    tree: LatteTree
     translator: Translator
 
     def __init__(self) -> None:

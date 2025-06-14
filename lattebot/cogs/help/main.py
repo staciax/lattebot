@@ -107,7 +107,7 @@ class CogButton(ui.Button['HelpCommandView']):
         await self.view.show_page(interaction, 0)
 
 
-class HelpCommandView(ViewAuthor, LattePages):  # type: ignore[misc]
+class HelpCommandView(ViewAuthor, LattePages):
     def __init__(self, interaction: discord.Interaction[LatteBot], allowed_cogs: tuple[str, ...]) -> None:
         super().__init__(interaction=interaction, timeout=60.0 * 30)  # 30 minutes
         self.allowed_cogs = allowed_cogs
@@ -220,7 +220,7 @@ class HelpCommandView(ViewAuthor, LattePages):  # type: ignore[misc]
         # disable all cog buttons
         for child in self.children:
             if isinstance(child, CogButton):
-                child.disabled = False  # type: ignore[attr-defined]
+                child.disabled = False
 
         # remove nav buttons
         self.remove_nav_buttons()

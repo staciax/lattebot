@@ -73,19 +73,19 @@ class Embed(discord.Embed):
         return self
 
     def success(self) -> Self:
-        self.colour = 0x8BE28B  # type: ignore[assignment]
+        self.colour = 0x8BE28B
         return self
 
     def error(self) -> Self:
-        self.colour = 0xFF6961  # type: ignore[assignment]
+        self.colour = 0xFF6961
         return self
 
     def warning(self) -> Self:
-        self.colour = 0xFDFD96  # type: ignore[assignment]
+        self.colour = 0xFDFD96
         return self
 
     def dark(self) -> Self:
-        self.colour = 0x0F1923  # type: ignore[assignment]
+        self.colour = 0x0F1923
         return self
 
 
