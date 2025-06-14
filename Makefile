@@ -32,9 +32,9 @@ format: # Format the code
 	uv run ruff check lattebot --fix
 	uv run ruff format lattebot
 
-.PHONY: test
-.SILENT: test
-test: # Run the tests
+.PHONY: tests
+.SILENT: tests
+tests: # Run the tests
 	uv run pytest
 	# uv run coverage run --source=lattebot -m pytest
 	# uv run coverage report --show-missing
