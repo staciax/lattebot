@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import os
 from pathlib import Path
 from typing import Generic, TypeVar
 
@@ -20,17 +19,15 @@ BotT = TypeVar('BotT', bound=Bot_, default=Bot_)
 _log = logging.getLogger(__name__)
 
 
-def _get_extension_name(path: str) -> str:
+def _get_extension_name(file_path: str) -> str:
     # Pre-condition: path points to a valid python file
 
-    # On POSIX, relpath() returns the path with forward
-    # slashes so we normalize them to backslashes
-    path = os.path.relpath(path).replace('/', '\\')
-    comps = path.split('\\')
+    # Convert to Path object and resolve to absolute path
+    path = Path(file_path).resolve()
+    path = path.relative_to(Path.cwd())
 
     # Strip the .py extension from the base name
-    basename = comps.pop(-1)
-    comps.append(basename[:-3])
+    path_parts = path.with_suffix('').parts
 
     # For users that have subpackages inside their ext directory
     # with extension entry point in __init__.py, We will ignore
@@ -38,7 +35,7 @@ def _get_extension_name(path: str) -> str:
     # This will break for users who add their extensions with
     # name "ext_directory.subpackage.__init__" but that is a niche
     # case so it's a reasonable compromise
-    return '.'.join(comp for comp in comps if comp != '__init__')
+    return '.'.join(part for part in path_parts if part != '__init__')
 
 
 class Reloader(Generic[BotT]):

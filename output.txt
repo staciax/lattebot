@@ -1,0 +1,5 @@
+path: lattebot\cogs\help\main.py
+comps: ['lattebot', 'cogs', 'help', 'main.py']
+basename main.py
+comps after basename: ['lattebot', 'cogs', 'help', 'main']
+return lattebot.cogs.help.main
