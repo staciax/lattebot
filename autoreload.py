@@ -1,4 +1,6 @@
+# discord-ext-autoreload
 # https://github.com/izxxr/discord-ext-autoreload/blob/main/discord/ext/autoreload/reloader.py
+# MIT License
 
 from __future__ import annotations
 
@@ -12,7 +14,7 @@ from discord.ext import commands
 
 __all__ = ('Reloader',)
 
-Bot_ = commands.Bot | commands.AutoShardedBot
+type Bot_ = commands.Bot | commands.AutoShardedBot
 BotT = TypeVar('BotT', bound=Bot_, default=Bot_)
 
 
