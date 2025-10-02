@@ -70,7 +70,7 @@ class LatteBot(commands.AutoShardedBot):
     async def on_ready(self) -> None:
         log.info(
             'logged in as: %s activity: %s servers: %s users: %s',
-            str(self.user),
+            self.user,
             self.activity.name if self.activity else None,
             len(self.guilds),
             sum(guild.member_count for guild in self.guilds if guild.member_count),
