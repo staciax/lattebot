@@ -17,7 +17,7 @@ help:
 .PHONY: sync
 .SILENT: sync
 sync: # Install dependencies
-	uv sync
+	uv sync --all-extras --all-packages --group dev
 
 .PHONY: run
 .SILENT: run
@@ -37,9 +37,8 @@ report: # See the coverage report
 .PHONY: lint
 .SILENT: lint
 lint: # Run the linter
-	uv run mypy lattebot tests
 	uv run ruff check lattebot tests
-	uv run ruff format lattebot tests --check
+	uv run ruff format --check lattebot tests
 
 .PHONY: mypy
 .SILENT: mypy
