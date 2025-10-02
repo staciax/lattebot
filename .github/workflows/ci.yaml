@@ -17,10 +17,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install uv with version 0.7.x
+      - name: Install uv with version 0.8.x
         uses: astral-sh/setup-uv@v6
         with:
-          version: "0.7.x"
+          version: "0.8.x"
           enable-cache: true
       
       - name: Install dependencies
