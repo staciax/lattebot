@@ -17,7 +17,7 @@ from discord.app_commands.translator import (
     Translator as _Translator,
     locale_str,
 )
-from pydantic import BaseModel
+from pydantic import BaseModel as PydanticBaseModel, ConfigDict
 
 from lattebot.utils import read_yaml, save_yaml
 
@@ -32,6 +32,15 @@ if TYPE_CHECKING:
     type Translatable = Command[Any, ..., Any] | Group | ContextMenu | Parameter | Choice[Any]
 
 log = logging.getLogger('latte.translator')
+
+
+class BaseModel(PydanticBaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+        # frozen=True,
+        # populate_by_name=True,
+        # validate_assignment=True,
+    )
 
 
 class OptionModel(BaseModel):
