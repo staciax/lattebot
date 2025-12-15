@@ -128,7 +128,7 @@ ignore = [
 extend-generics = ["discord.app_commands.CommandTree"]
 
 [tool.ruff.lint.pydocstyle]
-convention = "google"
+convention = "numpy"
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
