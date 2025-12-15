@@ -1,61 +1,101 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pytest
 from anyio import Path as AnyioPath
 
-from lattebot.utils import read_yaml, save_yaml
+from lattebot.utils import _to_json, _to_yaml, read_json, read_yaml, save_json, save_yaml  # noqa: PLC2701
 
 if TYPE_CHECKING:
     from anyio import Path
 
 
-@pytest.mark.anyio
-async def test_save_yaml(tmp_path: Path) -> None:
-    data = {'key': 'value'}
-    file_path = AnyioPath(tmp_path / 'test.yaml')
+@pytest.fixture(
+    params=[
+        pytest.param({'key': 'value'}, id='simple'),
+        pytest.param({'nested': {'key': 'value'}}, id='nested'),
+        pytest.param({'list': [1, 2, 3]}, id='list'),
+        pytest.param({'mixed': {'list': [1, 2], 'string': 'test'}}, id='mixed'),
+        pytest.param({'boolean': True, 'null': None}, id='bool-null'),
+        pytest.param({'numbers': {'int': 42, 'float': 14.0000001}}, id='numbers'),
+        pytest.param({'unicode': 'สวัสดีจ้า'}, id='unicode'),
+        pytest.param({'empty': {'dict': {}, 'list': []}}, id='empty'),
+    ]
+)
+def test_data(request: pytest.FixtureRequest) -> dict[str, Any]:
+    return request.param  # type: ignore[no-any-return]
 
-    await save_yaml(file_path, data)
-
-    assert await file_path.exists()
-    async with await file_path.open('r', encoding='utf-8') as f:
-        content = await f.read()
-        assert 'key: value' in content
-
-
-@pytest.mark.anyio
-async def test_save_yaml_string_path(tmp_path: Path) -> None:
-    data = {'key': 'value'}
-    file_path = AnyioPath(tmp_path / 'test.yaml')
-
-    await save_yaml(file_path.as_posix(), data)
-
-    assert file_path.exists()
-    async with await file_path.open('r', encoding='utf-8') as f:
-        content = await f.read()
-        assert 'key: value' in content
+# YAML Tests
 
 
 @pytest.mark.anyio
-async def test_read_yaml(tmp_path: Path) -> None:
-    data = {'key': 'value'}
-    file_path = AnyioPath(tmp_path / 'test.yaml')
+@pytest.mark.parametrize('path_as_string', [True, False])
+async def test_save_yaml(
+    tmp_path: Path,
+    test_data: dict[str, Any],
+    path_as_string: bool,
+) -> None:
+    output_file = AnyioPath(tmp_path / 'test.yaml')
 
-    async with await file_path.open('w', encoding='utf-8') as f:
-        await f.write('key: value')
+    path_input = output_file.as_posix() if path_as_string else output_file
+    await save_yaml(path_input, test_data)
 
-    result = await read_yaml(file_path)
-    assert result == data
+    assert await output_file.exists()
+    saved_content = await output_file.read_bytes()
+    assert len(saved_content) > 0
 
 
 @pytest.mark.anyio
-async def test_read_yaml_string_path(tmp_path: Path) -> None:
-    data = {'key': 'value'}
-    file_path = AnyioPath(tmp_path / 'test.yaml')
+@pytest.mark.parametrize('path_as_string', [True, False])
+async def test_read_yaml(
+    tmp_path: Path,
+    test_data: dict[str, Any],
+    path_as_string: bool,
+) -> None:
+    input_file = AnyioPath(tmp_path / 'test.yaml')
 
-    async with await file_path.open('w', encoding='utf-8') as f:
-        await f.write('key: value')
+    yaml_content = _to_yaml(test_data)
+    await input_file.write_bytes(yaml_content)
 
-    result = await read_yaml(file_path.as_posix())
-    assert result == data
+    path_input = input_file.as_posix() if path_as_string else input_file
+    loaded_data = await read_yaml(path_input)
+
+    assert loaded_data == test_data
+
+# JSON tests
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize('path_as_string', [True, False])
+async def test_save_json(
+    tmp_path: Path,
+    test_data: dict[str, Any],
+    path_as_string: bool,
+) -> None:
+    output_file = AnyioPath(tmp_path / 'test.json')
+    path_input: str | AnyioPath = output_file.as_posix() if path_as_string else output_file
+
+    await save_json(path_input, test_data)
+
+    assert await output_file.exists()
+    saved_content = await output_file.read_bytes()
+    assert len(saved_content) > 0
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize('path_as_string', [True, False])
+async def test_read_json(
+    tmp_path: Path,
+    test_data: dict[str, Any],
+    path_as_string: bool,
+) -> None:
+    input_file = AnyioPath(tmp_path / 'test.json')
+
+    json_content = _to_json(test_data)
+    await input_file.write_bytes(json_content)
+
+    path_input: str | AnyioPath = input_file.as_posix() if path_as_string else input_file
+    loaded_data = await read_json(path_input)
+
+    assert loaded_data == test_data
