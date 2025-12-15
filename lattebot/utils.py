@@ -10,12 +10,12 @@ from anyio import Path
 try:
     import msgspec
 except ImportError:  # pragma: no cover
-    msgspec = None  # type: ignore[assignment]
+    msgspec = None  # type: ignore[assignment,unused-ignore]
+
 
 # JSON utils
 _from_json = json.loads if msgspec is None else msgspec.json.decode
 _to_json = json.dumps if msgspec is None else msgspec.json.encode
-# _json_format = None if msgspec is None else msgspec.json.format
 
 # YAML utils
 _from_yaml = yaml.safe_load if msgspec is None else msgspec.yaml.decode
@@ -25,133 +25,178 @@ _from_yaml = yaml.safe_load if msgspec is None else msgspec.yaml.decode
 # Without encoding, yaml.safe_dump would return a string.
 _to_yaml = partial(yaml.safe_dump, encoding='utf-8') if msgspec is None else msgspec.yaml.encode
 
+# NOTE: I should switch from anyio.Path to aiofiles library???
 
-# NOTE: or aiofiles?
+
+class FileFormatError(Exception):
+    """Raised when file content is invalid."""
+
+
+# JSON utils
+
+JsonDecodeError = json.JSONDecodeError if msgspec is None else msgspec.DecodeError
+
+
+async def read_json(
+    file_path: Path | str,
+    *,
+    raise_on_error: bool = False,
+) -> dict[str, Any] | None:
+    """Read a JSON file and returns its content.
+
+    Args:
+        file_path: The file path to read the JSON content from.
+        raise_on_error: If True, raise exceptions on any errors. Default is False.
+
+    Returns
+    -------
+        The content of the JSON file, or None if any error occurs (when raise_on_error=False).
+
+    Raises
+    ------
+        FileNotFoundError: If raise_on_error=True and the file does not exist.
+        FileFormatError: If raise_on_error=True and decoding fails.
+    """
+    if isinstance(file_path, str):
+        file_path = Path(file_path)
+
+    if not await file_path.exists():
+        if raise_on_error:
+            raise FileNotFoundError(f'File {file_path} does not exist.')
+        return None
+
+    json_text = await file_path.read_text(encoding='utf-8')
+    try:
+        return _from_json(json_text)  # type: ignore[no-any-return]
+    except JsonDecodeError as e:
+        if raise_on_error:
+            raise FileFormatError(f'Invalid JSON in file {file_path}: {e}') from e
+        return None
+
+
+async def save_json(
+    file_path: Path | str,
+    data: dict[str, Any],
+    *,
+    indent: int | None = None,
+    overwrite: bool = False,
+) -> None:
+    """Save a dictionary to a JSON file.
+
+    Args:
+        file_path: The file path where the JSON content will be written.
+        data: The dictionary data to save.
+        indent: Number of spaces for indentation (None for compact).
+        overwrite: Whether to overwrite the file if it already exists. Default is False.
+
+    Raises
+    ------
+        FileExistsError: If the file already exists and overwrite is False.
+    """
+    if isinstance(file_path, str):
+        file_path = Path(file_path)
+
+    if not overwrite and await file_path.exists():
+        raise FileExistsError(f'File {file_path} already exists.')
+
+    tmp_path = file_path.with_suffix(file_path.suffix + '.tmp')
+
+    json_data = _to_json(data)
+
+    if isinstance(json_data, str):
+        json_data = json_data.encode('utf-8')
+
+    if indent and msgspec is not None:
+        json_data = msgspec.json.format(json_data, indent=indent)
+
+    await tmp_path.write_bytes(json_data)
+    await tmp_path.replace(file_path)
+
+
+# YAML utils
+
+YamlDecodeError = yaml.YAMLError if msgspec is None else msgspec.DecodeError
+
+
+async def read_yaml(
+    file_path: Path | str,
+    *,
+    raise_on_error: bool = False,
+) -> dict[str, Any] | None:
+    """Read a YAML file and returns its content.
+
+    Args:
+        file_path: The file path to read the YAML content from.
+        raise_on_error: If True, raise exceptions on any errors. Default is False.
+
+    Returns
+    -------
+        The content of the YAML file, or None if any error occurs (when raise_on_error=False).
+
+    Raises
+    ------
+        FileNotFoundError: If raise_on_error=True and the file does not exist.
+        FileFormatError: If raise_on_error=True and decoding fails.
+    """
+    if isinstance(file_path, str):
+        file_path = Path(file_path)
+
+    if not await file_path.exists():
+        if raise_on_error:
+            raise FileNotFoundError(f'File {file_path} does not exist.')
+        return None
+
+    yaml_text = await file_path.read_text(encoding='utf-8')
+    try:
+        return _from_yaml(yaml_text)  # type: ignore[no-any-return]
+    except YamlDecodeError as e:
+        if raise_on_error:
+            raise FileFormatError(f'Invalid YAML in file {file_path}: {e}') from e
+        return None
 
 
 async def save_yaml(  # noqa: PLR0913
-    file: Path | str,
+    file_path: Path | str,
     data: dict[str, Any],
     *,
     overwrite: bool = False,
     indent: int = 4,
     allow_unicode: bool = True,
     sort_keys: bool = False,
+    encoding: str = 'utf-8',
     **kwargs: Any,
 ) -> None:
-    """
-    Save a dictionary to a YAML file.
+    """Save a dictionary to a YAML file.
 
-    Parameters
-    ----------
-    data : dict[str, Any]
-        The dictionary data to save.
-    file : anyio.Path
-        The file path where the YAML content will be written.
-    overwrite : bool
-        Whether to overwrite the file if it already exists. Default is False.
-    indent : int
-        The number of spaces to use for indentation. Default is 4.
-    allow_unicode : bool
-        Whether to allow Unicode characters in the output. Default is True.
-    sort_keys : bool
-        Whether to sort the keys in the output. Default is False.
-    **kwargs : Any
-        Additional keyword arguments to pass to yaml.dump().
+    Args:
+        file_path: The file path where the YAML content will be written.
+        data: The dictionary data to save.
+        overwrite: Whether to overwrite the file if it already exists. Default is False.
+        indent: The number of spaces to use for indentation. Default is 4.
+        allow_unicode: Whether to allow Unicode characters in the output. Default is True.
+        sort_keys: Whether to sort the keys in the output. Default is False.
+        encoding: The encoding to use. Default is 'utf-8'.
+        **kwargs: Additional keyword arguments to pass to yaml.dump().
 
     Raises
     ------
-    FileExistsError
-        If the file already exists and overwrite is False.
+        FileExistsError: If the file already exists and overwrite is False.
     """
-    if isinstance(file, str):
-        file = Path(file)
+    if isinstance(file_path, str):
+        file_path = Path(file_path)
 
-    if not overwrite and await file.exists():
-        raise FileExistsError(f'File {file} already exists.')
+    if not overwrite and await file_path.exists():
+        raise FileExistsError(f'File {file_path} already exists.')
 
-    async with await file.open('w', encoding='utf-8') as f:
-        yaml_text = yaml.dump(
-            data,
-            indent=indent,
-            allow_unicode=allow_unicode,
-            sort_keys=sort_keys,
-            **kwargs,
-        )
-        await f.write(yaml_text)
+    tmp_path = file_path.with_suffix(file_path.suffix + '.tmp')
 
-
-async def read_yaml(file: Path | str) -> Any:
-    """
-    Read a YAML file and returns its content.
-
-    Parameters
-    ----------
-    file : anyio.Path
-        The file path to read the YAML content from.
-
-    Returns
-    -------
-    Any
-        The content of the YAML file.
-    """
-    if isinstance(file, str):
-        file = Path(file)
-
-    async with await file.open('r', encoding='utf-8',) as f:
-        yaml_text = await f.read()
-        return _from_yaml(yaml_text)
-
-
-async def read_json(file: Path | str) -> Any:
-    """
-    Read a JSON file and returns its content.
-
-    Parameters
-    ----------
-    file : anyio.Path
-        The file path to read the JSON content from.
-
-    Returns
-    -------
-    Any
-        The content of the JSON file.
-    """
-    if isinstance(file, str):
-        file = Path(file)
-
-    async with await file.open('r', encoding='utf-8') as f:
-        json_text = await f.read()
-        return _from_json(json_text)
-
-
-async def save_json(
-    file: Path | str,
-    data: dict[str, Any],
-    *,
-    overwrite: bool = False,
-) -> None:
-    """
-    Save a dictionary to a JSON file.
-
-    Parameters
-    ----------
-    data : dict[str, Any]
-        The dictionary data to save.
-    file : anyio.Path
-        The file path where the JSON content will be written.
-    overwrite : bool
-        Whether to overwrite the file if it already exists. Default is False.
-
-    Raises
-    ------
-    FileExistsError
-        If the file already exists and overwrite is False.
-    """
-    if isinstance(file, str):
-        file = Path(file)
-
-    if not overwrite and await file.exists():
-        raise FileExistsError(f'File {file} already exists.')
-
-    await file.write_bytes(_to_json(data))
+    yaml_bytes = yaml.dump(
+        data,
+        indent=indent,
+        allow_unicode=allow_unicode,
+        sort_keys=sort_keys,
+        encoding=encoding,
+        **kwargs,
+    )
+    await tmp_path.write_bytes(yaml_bytes)
+    await tmp_path.replace(file_path)
