@@ -9,7 +9,8 @@
 
   // Editor
   "workbench.editor.customLabels.patterns": {
-    "**/lattebot/cogs/**/*.py": "${dirname} - ${filename}.py"
+    "**/lattebot/cogs/**/*.py": "${dirname} - ${filename}.py",
+    "**/lattebot/cogs/*/locales/*/*.yaml": "${dirname(2)} - ${dirname}/${filename}.yaml"
   },
 
   // Ruff
