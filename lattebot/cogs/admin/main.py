@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar, Final
 
 import discord
 from discord import Interaction, app_commands
@@ -29,8 +29,10 @@ class Admin(LatteCog, name='admin'):
         # allowed_installs=
     )
 
+    INITIAL_EXTENSION_CHOICES: ClassVar[Final[list[app_commands.Choice[str]]]] = [app_commands.Choice(name=ext, value=ext) for ext in INITIAL_EXTENSIONS]
+
     @extension.command(name=_('load'), description=_('Load an extension.'))
-    @app_commands.choices(extension=[app_commands.Choice(name=ext, value=ext) for ext in INITIAL_EXTENSIONS])
+    @app_commands.choices(extension=INITIAL_EXTENSION_CHOICES)
     @app_commands.describe(extension=_('extension name'))
     @app_commands.rename(extension=_('extension'))
     @bot_has_permissions(send_messages=True, embed_links=True)
@@ -42,7 +44,7 @@ class Admin(LatteCog, name='admin'):
         await interaction.followup.send(f'**Loaded**: `{extension.value}`', silent=True)
 
     @extension.command(name=_('unload'), description=_('Unload an extension.'))
-    @app_commands.choices(extension=[app_commands.Choice(name=ext, value=ext) for ext in INITIAL_EXTENSIONS])
+    @app_commands.choices(extension=INITIAL_EXTENSION_CHOICES)
     @app_commands.describe(extension=_('extension name'))
     @app_commands.rename(extension=_('extension'))
     @bot_has_permissions(send_messages=True, embed_links=True)
@@ -54,7 +56,7 @@ class Admin(LatteCog, name='admin'):
         await interaction.followup.send(f'**Unloaded**: `{extension.value}`', silent=True)
 
     @extension.command(name=_('reload'), description=_('Reload an extension.'))
-    @app_commands.choices(extension=[app_commands.Choice(name=ext, value=ext) for ext in INITIAL_EXTENSIONS])
+    @app_commands.choices(extension=INITIAL_EXTENSION_CHOICES)
     @app_commands.describe(extension=_('extension name'))
     @app_commands.rename(extension=_('extension'))
     @bot_has_permissions(send_messages=True, embed_links=True)
