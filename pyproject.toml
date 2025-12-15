@@ -16,7 +16,7 @@ dependencies = [
   "pygit2>=1.19.0, <2.0.0",
   "cchardet==2.2.0a2; python_version < '3.15'",
   "msgspec>=0.20.0, <1.0.0; python_version < '3.15'",
-  "uvloop>=0.21.0; sys_platform != 'win32'",
+  "uvloop>=0.21.0; sys_platform != 'win32'"
 ]
 
 [dependency-groups]
@@ -27,12 +27,23 @@ dev = [
   "pytest-cov>=7.0.0, <8.0.0",
   "coverage>=7.10.7, <8.0.0",
   "types-pyyaml>=6.0, <7.0.0",
-  "watchfiles>=v1.1.0, <1.2.0",
+  "watchfiles>=v1.1.0, <1.2.0"
   # "ty>=0.0.1a10",
 ]
 
 # [tool.uv.sources]
 # discord-py = { git = "https://github.com/Rapptz/discord.py", rev = "master" }
+
+[project.scripts]
+lattebot = "lattebot.__main__:main"
+
+[build-system]
+requires = ["uv_build>=0.9.16, <0.10.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-root = ""
+source-include = ["LICENSE"]
 
 [tool.mypy]
 strict = true
