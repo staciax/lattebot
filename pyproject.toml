@@ -11,12 +11,12 @@ dependencies = [
   "jishaku>=2.6.3, <3.0.0",
   "pydantic>2.0, <3.0.0",
   "pydantic-settings>=2.12.0, <3.0.0",
-  "uvloop>=0.21.0; sys_platform != 'win32'",
   "pyyaml>=6.0.3, <7.0.0",
   "anyio>=4.12.0, <5.0.0",
   "pygit2>=1.19.0, <2.0.0",
   "cchardet==2.2.0a2; python_version < '3.15'",
   "msgspec>=0.20.0, <1.0.0; python_version < '3.15'",
+  "uvloop>=0.21.0; sys_platform != 'win32'",
 ]
 
 [dependency-groups]
@@ -128,7 +128,7 @@ ignore = [
 extend-generics = ["discord.app_commands.CommandTree"]
 
 [tool.ruff.lint.pydocstyle]
-convention = "numpy"
+convention = "google"
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
