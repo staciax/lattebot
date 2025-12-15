@@ -2,7 +2,7 @@ default: help
 
 .PHONY: help
 help:
-	@echo "Puyu Makefile"
+	@echo "Lattebot Makefile"
 	@echo ""
 	@echo "\033[1;32mUsage:\033[0m \033[1;36mmake <target>\033[0m"
 	@echo ""
