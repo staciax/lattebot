@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from functools import partial
 from typing import Any
 
 import yaml
@@ -18,6 +19,12 @@ _to_json = json.dumps if msgspec is None else msgspec.json.encode
 
 # YAML utils
 _from_yaml = yaml.safe_load if msgspec is None else msgspec.yaml.decode
+
+# NOTE: encoding='utf-8' is passed to yaml.safe_dump to ensure it returns bytes,
+# making it consistent with msgspec.yaml.encode which also returns bytes.
+# Without encoding, yaml.safe_dump would return a string.
+_to_yaml = partial(yaml.safe_dump, encoding='utf-8') if msgspec is None else msgspec.yaml.encode
+
 
 # NOTE: or aiofiles?
 
