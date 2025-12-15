@@ -1,3 +1,5 @@
+sources = lattebot tests
+
 default: help
 
 .PHONY: help
@@ -37,24 +39,24 @@ report: # See the coverage report
 .PHONY: lint
 .SILENT: lint
 lint: # Run the linter
-	uv run ruff check lattebot tests
-	uv run ruff format --check lattebot tests
+	uv run ruff check $(sources)
+	uv run ruff format --check $(sources)
 
 .PHONY: mypy
 .SILENT: mypy
 mypy: # Run type checks with mypy
-	uv run mypy lattebot tests
+	uv run mypy $(sources)
 
 .PHONY: format
 .SILENT: format
 format: # Format the code
-	uv run ruff check lattebot tests --fix
-	uv run ruff format lattebot tests
+	uv run ruff check $(sources) --fix
+	uv run ruff format $(sources)
 
 .PHONY: format-check
 .SILENT: format-check
 format-check: # Check code formatting
-	uv run ruff format lattebot tests --check
+	uv run ruff format --check $(sources)
 
 .PHONY: tests
 .SILENT: tests
