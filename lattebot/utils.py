@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from functools import partial
-from typing import Any
+from typing import Any, Literal, overload
 
 import yaml
 from anyio import Path
@@ -35,6 +35,22 @@ class FileFormatError(Exception):
 # JSON utils
 
 JsonDecodeError = json.JSONDecodeError if msgspec is None else msgspec.DecodeError
+
+
+@overload
+async def read_json(
+    file_path: Path | str,
+    *,
+    raise_on_error: Literal[True],
+) -> dict[str, Any]: ...
+
+
+@overload
+async def read_json(
+    file_path: Path | str,
+    *,
+    raise_on_error: Literal[False] = False,
+) -> dict[str, Any] | None: ...
 
 
 async def read_json(
@@ -116,6 +132,22 @@ async def save_json(
 # YAML utils
 
 YamlDecodeError = yaml.YAMLError if msgspec is None else msgspec.DecodeError
+
+
+@overload
+async def read_yaml(
+    file_path: Path | str,
+    *,
+    raise_on_error: Literal[True],
+) -> dict[str, Any]: ...
+
+
+@overload
+async def read_yaml(
+    file_path: Path | str,
+    *,
+    raise_on_error: Literal[False] = False,
+) -> dict[str, Any] | None: ...
 
 
 async def read_yaml(
