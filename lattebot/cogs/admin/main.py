@@ -29,7 +29,9 @@ class Admin(LatteCog, name='admin'):
         # allowed_installs=
     )
 
-    INITIAL_EXTENSION_CHOICES: ClassVar[Final[list[app_commands.Choice[str]]]] = [app_commands.Choice(name=ext, value=ext) for ext in INITIAL_EXTENSIONS]
+    INITIAL_EXTENSION_CHOICES: ClassVar[Final[list[app_commands.Choice[str]]]] = [
+        app_commands.Choice(name=ext, value=ext) for ext in INITIAL_EXTENSIONS
+    ]
 
     @extension.command(name=_('load'), description=_('Load an extension.'))
     @app_commands.choices(extension=INITIAL_EXTENSION_CHOICES)

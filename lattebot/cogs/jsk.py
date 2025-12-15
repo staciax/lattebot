@@ -110,7 +110,7 @@ class Jishaku(*STANDARD_FEATURES, name='jishaku'):  # type: ignore[misc]
 
         try:
             source_lines, _ = inspect.getsourcelines(command.callback)  # type: ignore[union-attr]
-        except (TypeError, OSError):
+        except TypeError, OSError:
             await ctx.send(f'Was unable to retrieve the source for `{command}` for some reason.')
             return
 

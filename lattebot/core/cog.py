@@ -3,7 +3,7 @@ from __future__ import annotations
 import contextlib
 import inspect
 import logging
-from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar
+from typing import TYPE_CHECKING, Any, Self, TypeVar
 
 import discord
 from discord import AppCommandContext, AppInstallationType, Interaction, Member, Message, User, app_commands
@@ -72,7 +72,7 @@ def context_menu[GroupT: Binding](  # noqa: PLR0913
     return inner
 
 
-class Cog(commands.Cog, Generic[BotT]):
+class Cog[BotT: Bot_ = Bot_](commands.Cog):
     def __init__(self, bot: BotT) -> None:
         self.bot = bot
 

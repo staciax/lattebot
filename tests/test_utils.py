@@ -26,6 +26,7 @@ if TYPE_CHECKING:
 def test_data(request: pytest.FixtureRequest) -> dict[str, Any]:
     return request.param  # type: ignore[no-any-return]
 
+
 # YAML Tests
 
 
@@ -62,6 +63,7 @@ async def test_read_yaml(
     loaded_data = await read_yaml(path_input)
 
     assert loaded_data == test_data
+
 
 # JSON tests
 

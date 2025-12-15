@@ -201,7 +201,7 @@ class AppCommandTranslator:
             if isinstance(value, str):
                 return value
             log.error('Value for keys "%s" is not a string.', ' -> '.join(keys))
-        except (KeyError, TypeError):
+        except KeyError, TypeError:
             log.exception('Failed to retrieve value by keys "%s".', ' -> '.join(keys))
 
         return None
