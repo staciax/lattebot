@@ -137,10 +137,10 @@ class AppCommandTranslator:
 
         if not keys:
             log.warning(
-                'Translation keys not found for message %s in locale %s, location %s.',
-                repr(string.message),
-                repr(locale.value),
-                repr(context.location.name),
+                'Translation keys not found for message %r in locale %r, location %r.',
+                string.message,
+                locale.value,
+                context.location.name,
             )
             return None
 
