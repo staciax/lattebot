@@ -184,7 +184,7 @@ class AppCommandTranslator:
             return
 
         self._update_translation(locale, commands_data)
-        await save_yaml(commands_data, locale_file)
+        await save_yaml(locale_file, commands_data, overwrite=True)
 
     def _get_string_by_keys(self, data: dict[str, Any], keys: list[str]) -> str | None:
         try:

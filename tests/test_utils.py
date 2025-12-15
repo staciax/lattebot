@@ -16,7 +16,7 @@ async def test_save_yaml(tmp_path: Path) -> None:
     data = {'key': 'value'}
     file_path = AnyioPath(tmp_path / 'test.yaml')
 
-    await save_yaml(data, file_path)
+    await save_yaml(file_path, data)
 
     assert await file_path.exists()
     async with await file_path.open('r', encoding='utf-8') as f:
@@ -29,7 +29,7 @@ async def test_save_yaml_string_path(tmp_path: Path) -> None:
     data = {'key': 'value'}
     file_path = AnyioPath(tmp_path / 'test.yaml')
 
-    await save_yaml(data, file_path.as_posix())
+    await save_yaml(file_path.as_posix(), data)
 
     assert file_path.exists()
     async with await file_path.open('r', encoding='utf-8') as f:
