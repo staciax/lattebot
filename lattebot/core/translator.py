@@ -149,10 +149,10 @@ class AppCommandTranslator:
         if not locale_translations:
             # binding = context.data.binding if hasattr(context.data, 'binding') else None
             log.warning(
-                'Translations not found for locale %s in location %s, message %s.',
-                repr(locale.value),
-                repr(context.location.name),
-                repr(string.message),
+                'Translations not found for locale %r in location %r, message %r.',
+                locale.value,
+                context.location.name,
+                string.message,
                 # repr(binding),
             )
             return None
@@ -161,10 +161,10 @@ class AppCommandTranslator:
 
         if not translated_string:
             log.warning(
-                'Translation not found for message %s in locale %s, location %s',
-                repr(string.message),
-                repr(locale.value),
-                repr(context.location.name),
+                'Translation not found for message %r in locale %r, location %r',
+                string.message,
+                locale.value,
+                context.location.name,
             )
             return None
 
