@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import contextlib
 import json
 from functools import partial
 from typing import Any, Literal, cast, overload
@@ -116,24 +115,25 @@ async def save_json(
     if not overwrite and await file_path.exists():
         raise FileExistsError(f'File {file_path} already exists.')
 
+    # ensure parent directories exist
+    await file_path.parent.mkdir(parents=True, exist_ok=True)
+
     tmp_path = file_path.with_suffix(file_path.suffix + '.tmp')
 
-    # if msgspec is used return bytes, else str
-    json_data = _to_json(data)
-
-    if isinstance(json_data, str):
-        json_data = json_data.encode('utf-8')
-
-    if indent and msgspec is not None:
-        json_data = msgspec.json.format(json_data, indent=indent)
+    # encode with indent support for both msgspec and json
+    if msgspec is not None:
+        json_data = msgspec.json.encode(data)
+        if indent:
+            json_data = msgspec.json.format(json_data, indent=indent)
+    else:
+        json_data = json.dumps(data, indent=indent).encode('utf-8')
 
     try:
         await tmp_path.write_bytes(json_data)
         await tmp_path.replace(file_path)
     except Exception:
         # remove temp file if an error occurs
-        with contextlib.suppress(FileNotFoundError):
-            await tmp_path.unlink()
+        await tmp_path.unlink(missing_ok=True)
         raise
 
 
@@ -228,8 +228,14 @@ async def save_yaml(  # noqa: PLR0913
     if not overwrite and await file_path.exists():
         raise FileExistsError(f'File {file_path} already exists.')
 
+    # ensure parent directories exist
+    await file_path.parent.mkdir(parents=True, exist_ok=True)
+
     tmp_path = file_path.with_suffix(file_path.suffix + '.tmp')
 
+    # if msgspec is not None:
+    #     yaml_bytes = msgspec.yaml.encode(data)
+    # else:
     yaml_bytes = yaml.dump(
         data,
         indent=indent,
@@ -244,6 +250,5 @@ async def save_yaml(  # noqa: PLR0913
         await tmp_path.replace(file_path)
     except Exception:
         # remove temp file if an error occurs
-        with contextlib.suppress(FileNotFoundError):
-            await tmp_path.unlink()
+        await tmp_path.unlink(missing_ok=True)
         raise
