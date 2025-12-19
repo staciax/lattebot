@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from typing import Any
 
 import pytest
@@ -305,8 +304,8 @@ async def test_save_json_with_string_encoding(
 
     output_file = Path(tmp_path / 'test_string.json')
 
-    # monkeypatch _to_json to return a string
-    monkeypatch.setattr(lattebot.utils, '_to_json', json.dumps)
+    # monkeypatch to simulate msgspec not being available
+    monkeypatch.setattr(lattebot.utils, 'msgspec', None)
 
     await save_json(output_file, test_data)
 
