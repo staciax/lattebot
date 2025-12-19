@@ -4,7 +4,7 @@ import contextlib
 import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import discord
 
@@ -20,14 +20,11 @@ class RemoveNoise(logging.Filter):
         super().__init__(name='discord.state')
 
     def filter(self, record: logging.LogRecord) -> bool:
-        # if record.levelname == 'WARNING' and 'referencing an unknown' in record.msg:
-        #     return False
-        # return True
         return not (record.levelname == 'WARNING' and 'referencing an unknown' in record.msg)
 
 
 @contextlib.contextmanager
-def setup_logging(level: int = logging.INFO) -> Generator[None]:
+def setup_logging(level: Literal[0, 10, 20, 30, 40, 50] = logging.INFO) -> Generator[None]:
     log = logging.getLogger()
 
     try:
