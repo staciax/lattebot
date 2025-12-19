@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import json
 from typing import Any
 
 import pytest
+import yaml
 from anyio import Path
 
-from lattebot.utils import _to_json, _to_yaml, read_json, read_yaml, save_json, save_yaml  # noqa: PLC2701
+from lattebot.utils import read_json, read_yaml, save_json, save_yaml
 
 
 @pytest.fixture(
@@ -53,7 +55,7 @@ async def test_read_yaml(
 ) -> None:
     input_file = Path(tmp_path / 'test.yaml')
 
-    yaml_content = _to_yaml(test_data)
+    yaml_content = yaml.safe_dump(test_data, encoding='utf-8')
     await input_file.write_bytes(yaml_content)
 
     path_input: str | Path = input_file.as_posix() if path_as_string else input_file
@@ -179,8 +181,8 @@ async def test_read_json(
 ) -> None:
     input_file = Path(tmp_path / 'test.json')
 
-    json_content = _to_json(test_data)
-    await input_file.write_bytes(json_content)
+    json_content = json.dumps(test_data)
+    await input_file.write_text(json_content, encoding='utf-8')
 
     path_input: str | Path = input_file.as_posix() if path_as_string else input_file
     loaded_data = await read_json(path_input)
