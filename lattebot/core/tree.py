@@ -4,7 +4,6 @@ import logging
 from typing import TYPE_CHECKING
 
 from discord import app_commands
-from discord.abc import Snowflake
 from discord.http import Route
 
 __all__ = ('LatteTree',)
