@@ -314,7 +314,7 @@ async def save_yaml(  # noqa: PLR0913
 
     # use yaml.safe_dump to support formatting parameters
     # msgspec.yaml.encode does not support indent, sort_keys, etc.
-    yaml_bytes = yaml.dump(
+    yaml_bytes = yaml.safe_dump(
         data,
         indent=indent,
         allow_unicode=allow_unicode,
