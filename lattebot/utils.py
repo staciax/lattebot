@@ -164,7 +164,7 @@ async def save_json(
     try:
         await tmp_path.write_bytes(json_data)
         await tmp_path.replace(file_path)
-    except Exception:
+    except Exception:  # pragma: no cover
         # remove temp file if an error occurs
         await tmp_path.unlink(missing_ok=True)
         raise
@@ -323,7 +323,7 @@ async def save_yaml(  # noqa: PLR0913
     try:
         await tmp_path.write_bytes(yaml_bytes)
         await tmp_path.replace(file_path)
-    except Exception:
+    except Exception:  # pragma: no cover
         # remove temp file if an error occurs
         await tmp_path.unlink(missing_ok=True)
         raise
