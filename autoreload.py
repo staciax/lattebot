@@ -7,7 +7,6 @@ from __future__ import annotations
 import asyncio
 import logging
 from pathlib import Path
-from typing import TypeVar
 
 import watchfiles
 from discord.ext import commands
@@ -15,7 +14,6 @@ from discord.ext import commands
 __all__ = ('Reloader',)
 
 type Bot_ = commands.Bot | commands.AutoShardedBot
-BotT = TypeVar('BotT', bound=Bot_, default=Bot_)
 
 
 _log = logging.getLogger(__name__)
