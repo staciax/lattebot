@@ -29,7 +29,7 @@ run: # Run the app
 .PHONY: dev
 .SILENT: dev
 dev: # Run the app with coverage
-	uv run coverage run --source=lattebot launcher.py 
+	uv run coverage run --append --source=lattebot launcher.py
 
 .PHONY: report
 .SILENT: report

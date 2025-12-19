@@ -169,4 +169,4 @@ sort = "-Cover"
 exclude_also = ["if TYPE_CHECKING:"]
 
 [tool.pytest.ini_options]
-addopts = "-vv --showlocals --tb=short --strict -p no:warnings --cov=lattebot --cov=tests --cov-append"
+addopts = "-vv --showlocals --tb=short --strict -p no:warnings --cov=lattebot --cov=tests"
