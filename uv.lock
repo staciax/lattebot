@@ -386,7 +386,7 @@ wheels = [
 [[package]]
 name = "lattebot"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "anyio" },
     { name = "cchardet", marker = "python_full_version < '3.15'" },
