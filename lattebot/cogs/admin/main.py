@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, ClassVar, Final
 
 import discord
-from discord import Interaction, app_commands
+from discord import app_commands
 from discord.app_commands import locale_str as _
 from discord.app_commands.checks import bot_has_permissions
 
@@ -39,7 +39,11 @@ class Admin(LatteCog, name='admin'):
     @app_commands.rename(extension=_('extension'))
     @bot_has_permissions(send_messages=True, embed_links=True)
     @owner_only()
-    async def extension_load(self, interaction: Interaction[LatteBot], extension: app_commands.Choice[str]) -> None:
+    async def extension_load(
+        self,
+        interaction: discord.Interaction[LatteBot],
+        extension: app_commands.Choice[str],
+    ) -> None:
         await interaction.response.defer(ephemeral=True)
         await self.bot.load_extension(extension.value)
 
@@ -51,7 +55,11 @@ class Admin(LatteCog, name='admin'):
     @app_commands.rename(extension=_('extension'))
     @bot_has_permissions(send_messages=True, embed_links=True)
     @owner_only()
-    async def extension_unload(self, interaction: Interaction[LatteBot], extension: app_commands.Choice[str]) -> None:
+    async def extension_unload(
+        self,
+        interaction: discord.Interaction[LatteBot],
+        extension: app_commands.Choice[str],
+    ) -> None:
         await interaction.response.defer(ephemeral=True)
         await self.bot.unload_extension(extension.value)
 
@@ -63,7 +71,11 @@ class Admin(LatteCog, name='admin'):
     @app_commands.rename(extension=_('extension'))
     @bot_has_permissions(send_messages=True, embed_links=True)
     @owner_only()
-    async def extension_reload(self, interaction: Interaction[LatteBot], extension: app_commands.Choice[str]) -> None:
+    async def extension_reload(
+        self,
+        interaction: discord.Interaction[LatteBot],
+        extension: app_commands.Choice[str],
+    ) -> None:
         await interaction.response.defer(ephemeral=True)
 
         await self.bot.reload_extension(extension.value)
@@ -77,7 +89,7 @@ class Admin(LatteCog, name='admin'):
     @app_commands.default_permissions(administrator=True)
     @app_commands.guild_only()
     @owner_only()
-    async def sync_tree(self, interaction: Interaction[LatteBot], guild_id: str | None = None) -> None:
+    async def sync_tree(self, interaction: discord.Interaction[LatteBot], guild_id: str | None = None) -> None:
         await interaction.response.defer(ephemeral=True)
 
         if guild_id and guild_id.isdigit():

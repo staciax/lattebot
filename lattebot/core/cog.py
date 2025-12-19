@@ -3,10 +3,10 @@ from __future__ import annotations
 import contextlib
 import inspect
 import logging
-from typing import TYPE_CHECKING, Any, Self, TypeVar
+from typing import TYPE_CHECKING, Any, Self
 
 import discord
-from discord import AppCommandContext, AppInstallationType, Interaction, Member, Message, User, app_commands
+from discord import app_commands
 from discord.ext import commands
 from discord.utils import MISSING
 
@@ -19,30 +19,31 @@ __all__ = (
 if TYPE_CHECKING:
     from collections.abc import Callable, Coroutine, Iterable, Sequence
 
+    from discord import AppCommandContext, AppInstallationType, Member, Message, User
     from discord.app_commands import Group, locale_str
 
     from lattebot.core.bot import LatteBot
 
+    type Bot_ = commands.Bot | commands.AutoShardedBot
+
     type Coro[T] = Coroutine[Any, Any, T]
     type Binding = Group | commands.Cog
     type ContextMenuCallback[GroupT: Binding] = (
-        Callable[[GroupT, Interaction[LatteBot], Member], Coro[Any]]
-        | Callable[[GroupT, Interaction[LatteBot], User], Coro[Any]]
-        | Callable[[GroupT, Interaction[LatteBot], Message], Coro[Any]]
-        | Callable[[GroupT, Interaction[LatteBot], Member | User], Coro[Any]]
+        Callable[[GroupT, discord.Interaction[LatteBot], Member], Coro[Any]]
+        | Callable[[GroupT, discord.Interaction[LatteBot], User], Coro[Any]]
+        | Callable[[GroupT, discord.Interaction[LatteBot], Message], Coro[Any]]
+        | Callable[[GroupT, discord.Interaction[LatteBot], Member | User], Coro[Any]]
     )
+
 else:
     type ContextMenuCallback[T] = Callable[..., Coro[T]]
 
-
-Bot_ = commands.Bot | commands.AutoShardedBot
-BotT = TypeVar('BotT', bound=Bot_, default=Bot_)
 
 log = logging.getLogger('lattebot.cog')
 
 
 # https://github.com/InterStella0/stella_bot/blob/bf5f5632bcd88670df90be67b888c282c6e83d99/utils/cog.py#L28
-def context_menu[GroupT: Binding](  # noqa: PLR0913
+def context_menu[GroupT: Binding](
     *,
     name: str | locale_str = MISSING,
     nsfw: bool = False,

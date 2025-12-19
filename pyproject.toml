@@ -111,7 +111,7 @@ select = [
   "PERF", # perflint
   "FURB", # refurb
 
-  "RUF", # ruff-specific rules
+  "RUF" # ruff-specific rules
 
   # maybe enable later
   # "TID",   # flake8-tidy-imports
@@ -132,7 +132,7 @@ ignore = [
   "E501",    # line-too-long, handled by black
   "PLR6301", # no-self-use
   "TRY003",  # raise-vanilla-args
-  "ISC001",  # single-line-implicit-string-concatenation, conflicts with black
+  "ISC001"   # single-line-implicit-string-concatenation, conflicts with black
 ]
 
 [tool.ruff.lint.pyflakes]
@@ -156,10 +156,13 @@ ignore-variadic-names = true
 
 [tool.ruff.lint.per-file-ignores]
 "lattebot/logging.py" = [
-  "A005", # builtin-module-shadowing, allowed filename logging.py
+  "A005" # builtin-module-shadowing, allowed filename logging.py
+]
+"lattebot/core/cog.py" = [
+  "PLR0913" # too-many-arguments, context_menu function
 ]
 "tests/**/*.py" = [
-  "S101", # assert, allowed in tests 
+  "S101" # assert, allowed in tests
 ]
 
 [tool.coverage.report]
