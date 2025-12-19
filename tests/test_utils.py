@@ -275,3 +275,21 @@ async def test_save_json_overwrite_behavior(
         loaded_data = await read_json(path_input)
         assert loaded_data == new_data
         assert loaded_data != initial_data
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize('indent', [2, 4])
+async def test_save_json_with_indent(
+    tmp_path: Path,
+    test_data: dict[str, Any],
+    indent: int,
+) -> None:
+    output_file = Path(tmp_path / 'test_indent.json')
+    await save_json(output_file, test_data, indent=indent)
+
+    assert await output_file.exists()
+    content = await output_file.read_text()
+    assert len(content) > 0
+
+    loaded_data = await read_json(output_file)
+    assert loaded_data == test_data
