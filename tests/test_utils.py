@@ -65,6 +65,29 @@ async def test_read_yaml(
 
 @pytest.mark.anyio
 @pytest.mark.parametrize(
+    ('should_raise', 'exception_type'),
+    [
+        pytest.param(False, None, id='no-raise-returns-none'),
+        pytest.param(True, FileNotFoundError, id='raise-on-error'),
+    ],
+)
+async def test_read_yaml_file_not_found(
+    tmp_path: Path,
+    should_raise: bool,
+    exception_type: type[Exception] | None,
+) -> None:
+    input_file: Path = Path(tmp_path / 'nonexistent.yaml')
+
+    if not should_raise:
+        result = await read_yaml(input_file, raise_on_error=False)
+        assert result is None
+    else:
+        assert exception_type is not None
+        with pytest.raises(exception_type):
+            await read_yaml(input_file, raise_on_error=True)
+
+@pytest.mark.anyio
+@pytest.mark.parametrize(
     ('initial_data', 'new_data', 'overwrite', 'should_raise'),
     [
         pytest.param({'key': 'initial_value'}, {'key': 'new_value'}, False, True, id='no-overwrite-raises'),
@@ -138,6 +161,29 @@ async def test_read_json(
 
     assert loaded_data == test_data
 
+
+@pytest.mark.anyio
+@pytest.mark.parametrize(
+    ('should_raise', 'exception_type'),
+    [
+        pytest.param(False, None, id='no-raise-returns-none'),
+        pytest.param(True, FileNotFoundError, id='raise-on-error'),
+    ],
+)
+async def test_read_json_file_not_found(
+    tmp_path: Path,
+    should_raise: bool,
+    exception_type: type[Exception] | None,
+) -> None:
+    input_file = Path(tmp_path / 'nonexistent.json')
+
+    if not should_raise:
+        result = await read_json(input_file, raise_on_error=False)
+        assert result is None
+    else:
+        assert exception_type is not None
+        with pytest.raises(exception_type, match=r'File .* does not exist\.'):
+            await read_json(input_file, raise_on_error=True)
 
 @pytest.mark.anyio
 @pytest.mark.parametrize(
