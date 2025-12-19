@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import json
 from functools import partial
 from typing import Any, Literal, cast, overload
@@ -117,6 +118,7 @@ async def save_json(
 
     tmp_path = file_path.with_suffix(file_path.suffix + '.tmp')
 
+    # if msgspec is used return bytes, else str
     json_data = _to_json(data)
 
     if isinstance(json_data, str):
@@ -125,8 +127,14 @@ async def save_json(
     if indent and msgspec is not None:
         json_data = msgspec.json.format(json_data, indent=indent)
 
-    await tmp_path.write_bytes(json_data)
-    await tmp_path.replace(file_path)
+    try:
+        await tmp_path.write_bytes(json_data)
+        await tmp_path.replace(file_path)
+    except Exception:
+        # remove temp file if an error occurs
+        with contextlib.suppress(FileNotFoundError):
+            await tmp_path.unlink()
+        raise
 
 
 # YAML utils
@@ -230,5 +238,12 @@ async def save_yaml(  # noqa: PLR0913
         encoding=encoding,
         **kwargs,
     )
-    await tmp_path.write_bytes(yaml_bytes)
-    await tmp_path.replace(file_path)
+
+    try:
+        await tmp_path.write_bytes(yaml_bytes)
+        await tmp_path.replace(file_path)
+    except Exception:
+        # remove temp file if an error occurs
+        with contextlib.suppress(FileNotFoundError):
+            await tmp_path.unlink()
+        raise
