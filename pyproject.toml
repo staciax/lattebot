@@ -162,7 +162,7 @@ ignore-variadic-names = true
   "PLR0913" # too-many-arguments, context_menu function
 ]
 "tests/**/*.py" = [
-  "S101" # assert, allowed in tests 
+  "S101" # assert, allowed in tests
 ]
 
 [tool.coverage.report]
