@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from functools import partial
-from typing import Any, Literal, cast, overload
+from typing import Any, Literal, overload
 
 import yaml
 from anyio import Path
@@ -97,8 +97,9 @@ async def read_json(
         return None
 
     json_text = await file_path.read_text(encoding='utf-8')
+
     try:
-        return cast('dict[str, Any]', _from_json(json_text))
+        return _from_json(json_text)
     except JsonDecodeError as e:
         if raise_on_error:
             raise FileFormatError(f'Invalid JSON in file {file_path}: {e}') from e
@@ -236,8 +237,9 @@ async def read_yaml(
         return None
 
     yaml_text = await file_path.read_text(encoding='utf-8')
+
     try:
-        return cast('dict[str, Any]', _from_yaml(yaml_text))
+        return _from_yaml(yaml_text)
     except YamlDecodeError as e:
         if raise_on_error:
             raise FileFormatError(f'Invalid YAML in file {file_path}: {e}') from e
