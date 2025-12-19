@@ -42,36 +42,50 @@ async def read_json(
     file_path: Path | str,
     *,
     raise_on_error: Literal[True],
-) -> dict[str, Any]: ...
-
+) -> Any: ...
 
 @overload
 async def read_json(
     file_path: Path | str,
     *,
     raise_on_error: Literal[False] = False,
-) -> dict[str, Any] | None: ...
+) -> Any | None: ...
 
 
 async def read_json(
     file_path: Path | str,
     *,
     raise_on_error: bool = False,
-) -> dict[str, Any] | None:
-    """Read a JSON file and returns its content.
+) -> Any | None:
+    """Read and parse a JSON file.
 
     Args:
-        file_path: The file path to read the JSON content from.
-        raise_on_error: If True, raise exceptions on any errors. Default is False.
+        file_path: Path to the JSON file to read.
+        raise_on_error: If True, raise exceptions for any errors (file not found,
+            invalid JSON). If False, return None on errors. Default is False.
 
     Returns
     -------
-        The content of the JSON file, or None if any error occurs (when raise_on_error=False).
+        The parsed JSON content (dict, list, or other JSON types).
+        Returns None if an error occurs and raise_on_error is False.
 
     Raises
     ------
         FileNotFoundError: If raise_on_error=True and the file does not exist.
-        FileFormatError: If raise_on_error=True and decoding fails.
+        FileFormatError: If raise_on_error=True and the file contains invalid JSON.
+
+    Examples
+    --------
+    ```python
+    # Return None on errors
+    data = await read_json("config.json")
+    if data is not None:
+        print(data)
+
+    # Raise exceptions on errors
+    data = await read_json("config.json", raise_on_error=True)
+    print(data)  # Guaranteed to be valid JSON, not None
+    ```
     """
     if isinstance(file_path, str):
         file_path = Path(file_path)
@@ -97,17 +111,36 @@ async def save_json(
     indent: int | None = None,
     overwrite: bool = False,
 ) -> None:
-    """Save a dictionary to a JSON file.
+    """Save data to a JSON file atomically.
+
+    Uses a temporary file and atomic rename to ensure the file is either fully
+    written or not modified at all, preventing corruption from partial writes.
 
     Args:
-        file_path: The file path where the JSON content will be written.
-        data: The dictionary data to save.
-        indent: Number of spaces for indentation (None for compact).
-        overwrite: Whether to overwrite the file if it already exists. Default is False.
+        file_path: Path where the JSON file will be written.
+        data: Data to serialize to JSON (must be JSON-serializable).
+        indent: Number of spaces for indentation. None for compact output.
+            Default is None.
+        overwrite: If False, raise FileExistsError if file already exists.
+            If True, overwrite existing file. Default is False.
 
     Raises
     ------
-        FileExistsError: If the file already exists and overwrite is False.
+        FileExistsError: If the file exists and overwrite is False.
+        TypeError: If data is not JSON-serializable.
+
+    Examples
+    --------
+    ```python
+    # Save with pretty printing
+    await save_json("config.json", {"key": "value"}, indent=2)
+
+    # Save compact JSON
+    await save_json("data.json", [1, 2, 3])
+
+    # Overwrite existing file
+    await save_json("config.json", {"new": "data"}, overwrite=True)
+    ```
     """
     if isinstance(file_path, str):
         file_path = Path(file_path)
@@ -147,7 +180,7 @@ async def read_yaml(
     file_path: Path | str,
     *,
     raise_on_error: Literal[True],
-) -> dict[str, Any]: ...
+) -> Any: ...
 
 
 @overload
@@ -155,28 +188,43 @@ async def read_yaml(
     file_path: Path | str,
     *,
     raise_on_error: Literal[False] = False,
-) -> dict[str, Any] | None: ...
+) -> Any | None: ...
 
 
 async def read_yaml(
     file_path: Path | str,
     *,
     raise_on_error: bool = False,
-) -> dict[str, Any] | None:
-    """Read a YAML file and returns its content.
+) -> Any | None:
+    """Read and parse a YAML file.
 
     Args:
-        file_path: The file path to read the YAML content from.
-        raise_on_error: If True, raise exceptions on any errors. Default is False.
+        file_path: Path to the YAML file to read.
+        raise_on_error: If True, raise exceptions for any errors (file not found,
+            invalid YAML). If False, return None on errors. Default is False.
 
     Returns
     -------
-        The content of the YAML file, or None if any error occurs (when raise_on_error=False).
+        The parsed YAML content (dict, list, or other YAML types).
+        Returns None if an error occurs and raise_on_error is False.
 
     Raises
     ------
         FileNotFoundError: If raise_on_error=True and the file does not exist.
-        FileFormatError: If raise_on_error=True and decoding fails.
+        FileFormatError: If raise_on_error=True and the file contains invalid YAML.
+
+    Examples
+    --------
+    ```python
+    # Return None on errors
+    config = await read_yaml("settings.yaml")
+    if config is not None:
+        print(config)
+
+    # Raise exceptions on errors
+    config = await read_yaml("settings.yaml", raise_on_error=True)
+    print(config)  # Guaranteed to be valid YAML, not None
+    ```
     """
     if isinstance(file_path, str):
         file_path = Path(file_path)
@@ -206,21 +254,45 @@ async def save_yaml(  # noqa: PLR0913
     encoding: str = 'utf-8',
     **kwargs: Any,
 ) -> None:
-    """Save a dictionary to a YAML file.
+    """Save data to a YAML file atomically.
+
+    Uses a temporary file and atomic rename to ensure the file is either fully
+    written or not modified at all, preventing corruption from partial writes.
 
     Args:
-        file_path: The file path where the YAML content will be written.
-        data: The dictionary data to save.
-        overwrite: Whether to overwrite the file if it already exists. Default is False.
-        indent: The number of spaces to use for indentation. Default is 4.
-        allow_unicode: Whether to allow Unicode characters in the output. Default is True.
-        sort_keys: Whether to sort the keys in the output. Default is False.
-        encoding: The encoding to use. Default is 'utf-8'.
-        **kwargs: Additional keyword arguments to pass to yaml.dump().
+        file_path: Path where the YAML file will be written.
+        data: Data to serialize to YAML (must be YAML-serializable).
+        overwrite: If False, raise FileExistsError if file already exists.
+            If True, overwrite existing file. Default is False.
+        indent: Number of spaces for indentation. Default is 4.
+        allow_unicode: If True, allow Unicode characters in output.
+            If False, encode as escape sequences. Default is True.
+        sort_keys: If True, sort dictionary keys in output. Default is False.
+        encoding: Text encoding for the output file. Default is 'utf-8'.
+        **kwargs: Additional keyword arguments passed to yaml.dump().
 
     Raises
     ------
-        FileExistsError: If the file already exists and overwrite is False.
+        FileExistsError: If the file exists and overwrite is False.
+        yaml.YAMLError: If data cannot be serialized to YAML.
+
+    Examples
+    --------
+    ```python
+    # Save with custom formatting
+    await save_yaml("config.yaml", {"key": "value"}, indent=2)
+
+    # Save with sorted keys
+    await save_yaml("data.yaml", {"z": 1, "a": 2}, sort_keys=True)
+
+    # Overwrite existing file
+    await save_yaml("config.yaml", {"new": "data"}, overwrite=True)
+    ```
+
+    Note:
+        This function uses yaml.safe_dump instead of msgspec.yaml.encode
+        to support custom formatting options (indent, sort_keys, etc.).
+        msgspec.yaml.encode does not support these parameters.
     """
     if isinstance(file_path, str):
         file_path = Path(file_path)
@@ -236,6 +308,9 @@ async def save_yaml(  # noqa: PLR0913
     # if msgspec is not None:
     #     yaml_bytes = msgspec.yaml.encode(data)
     # else:
+
+    # use yaml.safe_dump to support formatting parameters
+    # msgspec.yaml.encode does not support indent, sort_keys, etc.
     yaml_bytes = yaml.dump(
         data,
         indent=indent,
