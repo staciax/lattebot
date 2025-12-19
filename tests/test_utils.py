@@ -86,6 +86,33 @@ async def test_read_yaml_file_not_found(
         with pytest.raises(exception_type):
             await read_yaml(input_file, raise_on_error=True)
 
+
+@pytest.mark.anyio
+@pytest.mark.parametrize(
+    ('should_raise', 'exception_type', 'invalid_content'),
+    [
+        pytest.param(False, None, '{ invalid: yaml: content: [', id='no-raise-returns-none'),
+        pytest.param(True, Exception, '{ invalid: yaml: content: [', id='raise-on-error'),
+    ],
+)
+async def test_read_yaml_invalid_format(
+    tmp_path: Path,
+    should_raise: bool,
+    exception_type: type[Exception] | None,
+    invalid_content: str,
+) -> None:
+    input_file = Path(tmp_path / 'invalid.yaml')
+    await input_file.write_text(invalid_content, encoding='utf-8')
+
+    if not should_raise:
+        result = await read_yaml(input_file, raise_on_error=False)
+        assert result is None
+    else:
+        assert exception_type is not None
+        with pytest.raises(exception_type):
+            await read_yaml(input_file, raise_on_error=True)
+
+
 @pytest.mark.anyio
 @pytest.mark.parametrize(
     ('initial_data', 'new_data', 'overwrite', 'should_raise'),
@@ -184,6 +211,33 @@ async def test_read_json_file_not_found(
         assert exception_type is not None
         with pytest.raises(exception_type, match=r'File .* does not exist\.'):
             await read_json(input_file, raise_on_error=True)
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize(
+    ('should_raise', 'exception_type', 'invalid_content'),
+    [
+        pytest.param(False, None, '{ "invalid": json content }', id='no-raise-returns-none'),
+        pytest.param(True, Exception, '{ "invalid": json content }', id='raise-on-error'),
+    ],
+)
+async def test_read_json_invalid_format(
+    tmp_path: Path,
+    should_raise: bool,
+    exception_type: type[Exception] | None,
+    invalid_content: str,
+) -> None:
+    input_file = Path(tmp_path / 'invalid.json')
+    await input_file.write_text(invalid_content, encoding='utf-8')
+
+    if not should_raise:
+        result = await read_json(input_file, raise_on_error=False)
+        assert result is None
+    else:
+        assert exception_type is not None
+        with pytest.raises(exception_type):
+            await read_json(input_file, raise_on_error=True)
+
 
 @pytest.mark.anyio
 @pytest.mark.parametrize(
