@@ -44,6 +44,7 @@ async def read_json(
     raise_on_error: Literal[True],
 ) -> Any: ...
 
+
 @overload
 async def read_json(
     file_path: Path | str,
