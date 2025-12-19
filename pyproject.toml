@@ -165,6 +165,7 @@ ignore-variadic-names = true
 [tool.coverage.report]
 show_missing = true
 precision = 2
+sort = "-Cover"
 exclude_also = ["if TYPE_CHECKING:"]
 
 [tool.pytest.ini_options]
