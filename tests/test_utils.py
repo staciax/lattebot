@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+import json
+from typing import Any
 
 import pytest
-from anyio import Path as AnyioPath
+from anyio import Path
 
 from lattebot.utils import _to_json, _to_yaml, read_json, read_yaml, save_json, save_yaml  # noqa: PLC2701
-
-if TYPE_CHECKING:
-    from anyio import Path
 
 
 @pytest.fixture(
@@ -37,9 +35,9 @@ async def test_save_yaml(
     test_data: dict[str, Any],
     path_as_string: bool,
 ) -> None:
-    output_file = AnyioPath(tmp_path / 'test.yaml')
+    output_file = Path(tmp_path / 'test.yaml')
 
-    path_input: str | AnyioPath = output_file.as_posix() if path_as_string else output_file
+    path_input: str | Path = output_file.as_posix() if path_as_string else output_file
     await save_yaml(path_input, test_data)
 
     assert await output_file.exists()
@@ -54,12 +52,12 @@ async def test_read_yaml(
     test_data: dict[str, Any],
     path_as_string: bool,
 ) -> None:
-    input_file = AnyioPath(tmp_path / 'test.yaml')
+    input_file = Path(tmp_path / 'test.yaml')
 
     yaml_content = _to_yaml(test_data)
     await input_file.write_bytes(yaml_content)
 
-    path_input: str | AnyioPath = input_file.as_posix() if path_as_string else input_file
+    path_input: str | Path = input_file.as_posix() if path_as_string else input_file
     loaded_data = await read_yaml(path_input)
 
     assert loaded_data == test_data
@@ -80,8 +78,8 @@ async def test_save_yaml_overwrite_behavior(
     overwrite: bool,
     should_raise: bool,
 ) -> None:
-    output_file = AnyioPath(tmp_path / 'test.yaml')
-    path_input: AnyioPath = output_file
+    output_file = Path(tmp_path / 'test.yaml')
+    path_input: Path = output_file
 
     await save_yaml(path_input, initial_data)
     assert await output_file.exists()
@@ -113,8 +111,8 @@ async def test_save_json(
     test_data: dict[str, Any],
     path_as_string: bool,
 ) -> None:
-    output_file = AnyioPath(tmp_path / 'test.json')
-    path_input: str | AnyioPath = output_file.as_posix() if path_as_string else output_file
+    output_file = Path(tmp_path / 'test.json')
+    path_input: str | Path = output_file.as_posix() if path_as_string else output_file
 
     await save_json(path_input, test_data)
 
@@ -130,12 +128,12 @@ async def test_read_json(
     test_data: dict[str, Any],
     path_as_string: bool,
 ) -> None:
-    input_file = AnyioPath(tmp_path / 'test.json')
+    input_file = Path(tmp_path / 'test.json')
 
     json_content = _to_json(test_data)
     await input_file.write_bytes(json_content)
 
-    path_input: str | AnyioPath = input_file.as_posix() if path_as_string else input_file
+    path_input: str | Path = input_file.as_posix() if path_as_string else input_file
     loaded_data = await read_json(path_input)
 
     assert loaded_data == test_data
@@ -156,8 +154,8 @@ async def test_save_json_overwrite_behavior(
     overwrite: bool,
     should_raise: bool,
 ) -> None:
-    output_file = AnyioPath(tmp_path / 'test.json')
-    path_input: AnyioPath = output_file
+    output_file = Path(tmp_path / 'test.json')
+    path_input: Path = output_file
 
     await save_json(path_input, initial_data)
     assert await output_file.exists()
