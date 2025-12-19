@@ -39,7 +39,7 @@ async def test_save_yaml(
 ) -> None:
     output_file = AnyioPath(tmp_path / 'test.yaml')
 
-    path_input = output_file.as_posix() if path_as_string else output_file
+    path_input: str | AnyioPath = output_file.as_posix() if path_as_string else output_file
     await save_yaml(path_input, test_data)
 
     assert await output_file.exists()
@@ -59,10 +59,48 @@ async def test_read_yaml(
     yaml_content = _to_yaml(test_data)
     await input_file.write_bytes(yaml_content)
 
-    path_input = input_file.as_posix() if path_as_string else input_file
+    path_input: str | AnyioPath = input_file.as_posix() if path_as_string else input_file
     loaded_data = await read_yaml(path_input)
 
     assert loaded_data == test_data
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize(
+    ('initial_data', 'new_data', 'overwrite', 'should_raise'),
+    [
+        pytest.param({'key': 'initial_value'}, {'key': 'new_value'}, False, True, id='no-overwrite-raises'),
+        pytest.param({'key': 'initial_value'}, {'key': 'new_value'}, True, False, id='with-overwrite-succeeds'),
+    ],
+)
+async def test_save_yaml_overwrite_behavior(
+    tmp_path: Path,
+    initial_data: dict[str, Any],
+    new_data: dict[str, Any],
+    overwrite: bool,
+    should_raise: bool,
+) -> None:
+    output_file = AnyioPath(tmp_path / 'test.yaml')
+    path_input: AnyioPath = output_file
+
+    await save_yaml(path_input, initial_data)
+    assert await output_file.exists()
+
+    loaded_data = await read_yaml(path_input)
+    assert loaded_data == initial_data
+
+    if should_raise:
+        with pytest.raises(FileExistsError, match=r'File .* already exists\.'):
+            await save_yaml(path_input, new_data, overwrite=overwrite)
+
+        loaded_data = await read_yaml(path_input)
+        assert loaded_data == initial_data
+    else:
+        await save_yaml(path_input, new_data, overwrite=overwrite)
+
+        loaded_data = await read_yaml(path_input)
+        assert loaded_data == new_data
+        assert loaded_data != initial_data
 
 
 # JSON tests
@@ -101,3 +139,41 @@ async def test_read_json(
     loaded_data = await read_json(path_input)
 
     assert loaded_data == test_data
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize(
+    ('initial_data', 'new_data', 'overwrite', 'should_raise'),
+    [
+        pytest.param({'key': 'initial_value'}, {'key': 'new_value'}, False, True, id='no-overwrite-raises'),
+        pytest.param({'key': 'initial_value'}, {'key': 'new_value'}, True, False, id='with-overwrite-succeeds'),
+    ],
+)
+async def test_save_json_overwrite_behavior(
+    tmp_path: Path,
+    initial_data: dict[str, Any],
+    new_data: dict[str, Any],
+    overwrite: bool,
+    should_raise: bool,
+) -> None:
+    output_file = AnyioPath(tmp_path / 'test.json')
+    path_input: AnyioPath = output_file
+
+    await save_json(path_input, initial_data)
+    assert await output_file.exists()
+
+    loaded_data = await read_json(path_input)
+    assert loaded_data == initial_data
+
+    if should_raise:
+        with pytest.raises(FileExistsError, match=r'File .* already exists\.'):
+            await save_json(path_input, new_data, overwrite=overwrite)
+
+        loaded_data = await read_json(path_input)
+        assert loaded_data == initial_data
+    else:
+        await save_json(path_input, new_data, overwrite=overwrite)
+
+        loaded_data = await read_json(path_input)
+        assert loaded_data == new_data
+        assert loaded_data != initial_data
