@@ -39,7 +39,9 @@ class Admin(LatteCog, name='admin'):
     @app_commands.rename(extension=_('extension'))
     @bot_has_permissions(send_messages=True, embed_links=True)
     @owner_only()
-    async def extension_load(self, interaction: discord.Interaction[LatteBot], extension: app_commands.Choice[str]) -> None:
+    async def extension_load(
+        self, interaction: discord.Interaction[LatteBot], extension: app_commands.Choice[str]
+    ) -> None:
         await interaction.response.defer(ephemeral=True)
         await self.bot.load_extension(extension.value)
 
@@ -51,7 +53,9 @@ class Admin(LatteCog, name='admin'):
     @app_commands.rename(extension=_('extension'))
     @bot_has_permissions(send_messages=True, embed_links=True)
     @owner_only()
-    async def extension_unload(self, interaction: discord.Interaction[LatteBot], extension: app_commands.Choice[str]) -> None:
+    async def extension_unload(
+        self, interaction: discord.Interaction[LatteBot], extension: app_commands.Choice[str]
+    ) -> None:
         await interaction.response.defer(ephemeral=True)
         await self.bot.unload_extension(extension.value)
 
@@ -63,7 +67,9 @@ class Admin(LatteCog, name='admin'):
     @app_commands.rename(extension=_('extension'))
     @bot_has_permissions(send_messages=True, embed_links=True)
     @owner_only()
-    async def extension_reload(self, interaction: discord.Interaction[LatteBot], extension: app_commands.Choice[str]) -> None:
+    async def extension_reload(
+        self, interaction: discord.Interaction[LatteBot], extension: app_commands.Choice[str]
+    ) -> None:
         await interaction.response.defer(ephemeral=True)
 
         await self.bot.reload_extension(extension.value)
