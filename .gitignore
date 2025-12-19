@@ -11,6 +11,7 @@ logs/
 
 # Coverage
 .coverage
+.coverage.*
 
 # MacOS
 .DS_Store
