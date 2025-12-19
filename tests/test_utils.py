@@ -293,3 +293,23 @@ async def test_save_json_with_indent(
 
     loaded_data = await read_json(output_file)
     assert loaded_data == test_data
+
+
+@pytest.mark.anyio
+async def test_save_json_with_string_encoding(
+    tmp_path: Path,
+    test_data: dict[str, Any],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import lattebot.utils  # noqa: PLC0415
+
+    output_file = Path(tmp_path / 'test_string.json')
+
+    # monkeypatch _to_json to return a string
+    monkeypatch.setattr(lattebot.utils, '_to_json', json.dumps)
+
+    await save_json(output_file, test_data)
+
+    assert await output_file.exists()
+    loaded_data = await read_json(output_file)
+    assert loaded_data == test_data
