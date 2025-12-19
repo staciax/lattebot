@@ -7,7 +7,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from pathlib import Path
-from typing import Generic, TypeVar
+from typing import TypeVar
 
 import watchfiles
 from discord.ext import commands
@@ -40,7 +40,7 @@ def _get_extension_name(file_path: str) -> str:
     return '.'.join(part for part in path_parts if part != '__init__')
 
 
-class Reloader(Generic[BotT]):
+class Reloader[BotT: Bot_ = Bot_]:
     """A class that allows automatic reloading of extensions.
 
     Parameters

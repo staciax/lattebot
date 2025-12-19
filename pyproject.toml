@@ -3,44 +3,56 @@ name = "lattebot"
 version = "0.1.0"
 description = "discord bot"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 authors = [{ name = "STACiA", email = "stacia.dev@gmail.com" }]
 license = { file = "LICENSE" }
 dependencies = [
-  "discord-py[speed]>=2.6.3,<2.7.0",
-  "jishaku>=2.6.0,<3.0.0",
-  "pydantic>2.0",
-  "pydantic-settings>=2.11.0,<3.0.0",
-  "uvloop>=0.21.0; sys_platform != 'win32'",
-  "pyyaml>=6.0.3,<7.0.0",
-  "anyio>=4.11.0,<5.0.0",
-  "pygit2>=1.18.2,<2.0.0",
-  "cchardet==2.2.0a2; python_version < '3.14'",
+  "discord-py[speed]>=2.6.4, <2.7.0",
+  "jishaku>=2.6.3, <3.0.0",
+  "pydantic>2.0, <3.0.0",
+  "pydantic-settings>=2.12.0, <3.0.0",
+  "pyyaml>=6.0.3, <7.0.0",
+  "anyio>=4.12.0, <5.0.0",
+  "pygit2>=1.19.0, <2.0.0",
+  "cchardet==2.2.0a2; python_version < '3.15'",
+  "msgspec>=0.20.0, <1.0.0; python_version < '3.15'",
+  "uvloop>=0.21.0; sys_platform != 'win32'"
 ]
 
 [dependency-groups]
 dev = [
-  "mypy>=1.18.2,<1.19.0",
-  "ruff>=0.13.2,<0.14.0",
-  "pytest>=8.4.2,<9.0.0",
-  "pytest-cov>=7.0.0,<8.0.0",
-  "coverage>=7.10.7,<8.0.0",
-  "types-pyyaml>=6.0,<7.0.0",
-  "watchfiles>=v1.1.0,<1.2.0",
+  "mypy>=1.19.1, <1.20.0",
+  "ruff>=0.14.9, <0.15.0",
+  "pytest>=9.0.2, <10.0.0",
+  "pytest-cov>=7.0.0, <8.0.0",
+  "coverage>=7.10.7, <8.0.0",
+  "types-pyyaml>=6.0, <7.0.0",
+  "watchfiles>=v1.1.0, <1.2.0"
   # "ty>=0.0.1a10",
 ]
 
 # [tool.uv.sources]
 # discord-py = { git = "https://github.com/Rapptz/discord.py", rev = "master" }
 
+[project.scripts]
+lattebot = "lattebot.__main__:main"
+
+[build-system]
+requires = ["uv_build>=0.9.16, <0.10.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-root = ""
+source-include = ["LICENSE"]
+
 [tool.mypy]
 strict = true
-python_version = "3.13"
 exclude = [".venv"]
+python_version = "3.14"
 
 [tool.ruff]
 line-length = 120
-target-version = "py313"
+target-version = "py314"
 exclude = [
   ".git",
   ".ruff_cache",
@@ -153,7 +165,8 @@ ignore-variadic-names = true
 [tool.coverage.report]
 show_missing = true
 precision = 2
+sort = "-Cover"
 exclude_also = ["if TYPE_CHECKING:"]
 
 [tool.pytest.ini_options]
-addopts = "-vv --showlocals --tb=short --strict -p no:warnings --cov=lattebot --cov=tests --cov-append"
+addopts = "-vv --showlocals --tb=short --strict -p no:warnings --cov=lattebot --cov=tests"

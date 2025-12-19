@@ -14,6 +14,7 @@ ext load:
                 lattebot.cogs.events: ''
                 lattebot.cogs.jsk: ''
                 lattebot.cogs.test: ''
+                lattebot.cogs.help: lattebot.cogs.help
 ext unload:
     name: ''
     description: ''
@@ -27,6 +28,7 @@ ext unload:
                 lattebot.cogs.events: ''
                 lattebot.cogs.jsk: ''
                 lattebot.cogs.test: ''
+                lattebot.cogs.help: lattebot.cogs.help
 ext reload:
     name: ''
     description: ''
@@ -40,6 +42,7 @@ ext reload:
                 lattebot.cogs.events: ''
                 lattebot.cogs.jsk: ''
                 lattebot.cogs.test: ''
+                lattebot.cogs.help: lattebot.cogs.help
 sync:
     name: ''
     description: ''

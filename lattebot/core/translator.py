@@ -17,7 +17,7 @@ from discord.app_commands.translator import (
     Translator as _Translator,
     locale_str,
 )
-from pydantic import BaseModel
+from pydantic import BaseModel as PydanticBaseModel, ConfigDict
 
 from lattebot.utils import read_yaml, save_yaml
 
@@ -32,6 +32,15 @@ if TYPE_CHECKING:
     type Translatable = Command[Any, ..., Any] | Group | ContextMenu | Parameter | Choice[Any]
 
 log = logging.getLogger('latte.translator')
+
+
+class BaseModel(PydanticBaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+        # frozen=True,
+        # populate_by_name=True,
+        # validate_assignment=True,
+    )
 
 
 class OptionModel(BaseModel):
@@ -128,10 +137,10 @@ class AppCommandTranslator:
 
         if not keys:
             log.warning(
-                'Translation keys not found for message %s in locale %s, location %s.',
-                repr(string.message),
-                repr(locale.value),
-                repr(context.location.name),
+                'Translation keys not found for message %r in locale %r, location %r.',
+                string.message,
+                locale.value,
+                context.location.name,
             )
             return None
 
@@ -140,10 +149,10 @@ class AppCommandTranslator:
         if not locale_translations:
             # binding = context.data.binding if hasattr(context.data, 'binding') else None
             log.warning(
-                'Translations not found for locale %s in location %s, message %s.',
-                repr(locale.value),
-                repr(context.location.name),
-                repr(string.message),
+                'Translations not found for locale %r in location %r, message %r.',
+                locale.value,
+                context.location.name,
+                string.message,
                 # repr(binding),
             )
             return None
@@ -152,10 +161,10 @@ class AppCommandTranslator:
 
         if not translated_string:
             log.warning(
-                'Translation not found for message %s in locale %s, location %s',
-                repr(string.message),
-                repr(locale.value),
-                repr(context.location.name),
+                'Translation not found for message %r in locale %r, location %r',
+                string.message,
+                locale.value,
+                context.location.name,
             )
             return None
 
@@ -184,7 +193,7 @@ class AppCommandTranslator:
             return
 
         self._update_translation(locale, commands_data)
-        await save_yaml(commands_data, locale_file)
+        await save_yaml(locale_file, commands_data, overwrite=True)
 
     def _get_string_by_keys(self, data: dict[str, Any], keys: list[str]) -> str | None:
         try:
@@ -192,7 +201,7 @@ class AppCommandTranslator:
             if isinstance(value, str):
                 return value
             log.error('Value for keys "%s" is not a string.', ' -> '.join(keys))
-        except (KeyError, TypeError):
+        except KeyError, TypeError:
             log.exception('Failed to retrieve value by keys "%s".', ' -> '.join(keys))
 
         return None

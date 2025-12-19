@@ -11,7 +11,10 @@ logs/
 
 # Coverage
 .coverage
+.coverage.*
 
 # MacOS
 .DS_Store
 
+# temp files
+*.tmp

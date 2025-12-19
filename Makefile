@@ -1,8 +1,10 @@
+sources = lattebot tests
+
 default: help
 
 .PHONY: help
 help:
-	@echo "Puyu Makefile"
+	@echo "Lattebot Makefile"
 	@echo ""
 	@echo "\033[1;32mUsage:\033[0m \033[1;36mmake <target>\033[0m"
 	@echo ""
@@ -27,7 +29,7 @@ run: # Run the app
 .PHONY: dev
 .SILENT: dev
 dev: # Run the app with coverage
-	uv run coverage run --source=lattebot launcher.py 
+	uv run coverage run --append --source=lattebot launcher.py
 
 .PHONY: report
 .SILENT: report
@@ -37,24 +39,24 @@ report: # See the coverage report
 .PHONY: lint
 .SILENT: lint
 lint: # Run the linter
-	uv run ruff check lattebot tests
-	uv run ruff format --check lattebot tests
+	uv run ruff check $(sources)
+	uv run ruff format --check $(sources)
 
 .PHONY: mypy
 .SILENT: mypy
 mypy: # Run type checks with mypy
-	uv run mypy lattebot tests
+	uv run mypy $(sources)
 
 .PHONY: format
 .SILENT: format
 format: # Format the code
-	uv run ruff check lattebot tests --fix
-	uv run ruff format lattebot tests
+	uv run ruff check $(sources) --fix
+	uv run ruff format $(sources)
 
 .PHONY: format-check
 .SILENT: format-check
 format-check: # Check code formatting
-	uv run ruff format lattebot tests --check
+	uv run ruff format --check $(sources)
 
 .PHONY: tests
 .SILENT: tests

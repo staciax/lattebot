@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, ClassVar, Final
 
 import discord
 from discord import Interaction, app_commands
@@ -8,19 +8,11 @@ from discord.app_commands import locale_str as _
 from discord.app_commands.checks import bot_has_permissions
 
 from lattebot.checks import owner_only
+from lattebot.core.bot import INITIAL_EXTENSIONS
 from lattebot.core.cog import LatteCog
 
 if TYPE_CHECKING:
     from lattebot.core.bot import LatteBot
-
-# NOTE: Hardcoded list of extensions (Should be same as in the INITIAL_EXTENSIONS in lattebot/core/bot.py)
-type EXTENSIONS = Literal[
-    'lattebot.cogs.about',
-    'lattebot.cogs.admin',
-    'lattebot.cogs.events',
-    'lattebot.cogs.jsk',
-    'lattebot.cogs.test',
-]
 
 
 class Admin(LatteCog, name='admin'):
@@ -37,39 +29,46 @@ class Admin(LatteCog, name='admin'):
         # allowed_installs=
     )
 
+    INITIAL_EXTENSION_CHOICES: ClassVar[Final[list[app_commands.Choice[str]]]] = [
+        app_commands.Choice(name=ext, value=ext) for ext in INITIAL_EXTENSIONS
+    ]
+
     @extension.command(name=_('load'), description=_('Load an extension.'))
+    @app_commands.choices(extension=INITIAL_EXTENSION_CHOICES)
     @app_commands.describe(extension=_('extension name'))
     @app_commands.rename(extension=_('extension'))
     @bot_has_permissions(send_messages=True, embed_links=True)
     @owner_only()
-    async def extension_load(self, interaction: Interaction[LatteBot], extension: EXTENSIONS) -> None:
+    async def extension_load(self, interaction: Interaction[LatteBot], extension: app_commands.Choice[str]) -> None:
         await interaction.response.defer(ephemeral=True)
-        await self.bot.load_extension(extension)
+        await self.bot.load_extension(extension.value)
 
-        await interaction.followup.send(f'**Loaded**: `{extension}`', silent=True)
+        await interaction.followup.send(f'**Loaded**: `{extension.value}`', silent=True)
 
     @extension.command(name=_('unload'), description=_('Unload an extension.'))
+    @app_commands.choices(extension=INITIAL_EXTENSION_CHOICES)
     @app_commands.describe(extension=_('extension name'))
     @app_commands.rename(extension=_('extension'))
     @bot_has_permissions(send_messages=True, embed_links=True)
     @owner_only()
-    async def extension_unload(self, interaction: Interaction[LatteBot], extension: EXTENSIONS) -> None:
+    async def extension_unload(self, interaction: Interaction[LatteBot], extension: app_commands.Choice[str]) -> None:
         await interaction.response.defer(ephemeral=True)
-        await self.bot.unload_extension(extension)
+        await self.bot.unload_extension(extension.value)
 
-        await interaction.followup.send(f'**Unloaded**: `{extension}`', silent=True)
+        await interaction.followup.send(f'**Unloaded**: `{extension.value}`', silent=True)
 
     @extension.command(name=_('reload'), description=_('Reload an extension.'))
+    @app_commands.choices(extension=INITIAL_EXTENSION_CHOICES)
     @app_commands.describe(extension=_('extension name'))
     @app_commands.rename(extension=_('extension'))
     @bot_has_permissions(send_messages=True, embed_links=True)
     @owner_only()
-    async def extension_reload(self, interaction: Interaction[LatteBot], extension: EXTENSIONS) -> None:
+    async def extension_reload(self, interaction: Interaction[LatteBot], extension: app_commands.Choice[str]) -> None:
         await interaction.response.defer(ephemeral=True)
 
-        await self.bot.reload_extension(extension)
+        await self.bot.reload_extension(extension.value)
 
-        await interaction.followup.send(f'**Reloaded**: `{extension}`', silent=True)
+        await interaction.followup.send(f'**Reloaded**: `{extension.value}`', silent=True)
 
     @app_commands.command(name='sync', description='Syncs the application commands to Discord.')
     @app_commands.rename(guild_id=_('guild_id'))
