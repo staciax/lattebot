@@ -10,14 +10,13 @@ Lattebot started as one of my first programming projects, created for a close gr
 
 ## Requirements
 
-- [Python](https://www.python.org) 3.13 or higher
-- [uv](https://docs.astral.sh/uv) 0.6.x or higher
+- [Python](https://www.python.org) 3.14 or higher
+- [uv](https://docs.astral.sh/uv) 0.9.x or higher
 
 ## Installation
 
 ```bash
-uv sync --no-dev
-# for development just remove --no-dev
+make sync
 ```
 
 ## Configuration
@@ -39,7 +38,7 @@ uv run python pre_start.py
 5. Start the bot by running the following command:
 
 ```bash
-uv run python launcher.py
+make run
 ```
 
 ### Docker
