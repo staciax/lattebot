@@ -436,10 +436,11 @@ class Translator(_Translator):
     async def unload(self) -> None:
         if self._loading_task and not self._loading_task.done():
             self._loading_task.cancel()
-            try:  # noqa: SIM105
+            try:
                 await self._loading_task
             except asyncio.CancelledError:
-                pass
+                # Task cancellation is expected during unload; ignore but log for debugging.
+                log.debug('translator load task was cancelled during unload')
 
         await self.app_command_translator.clear()
         await self.text_translator.clear()
