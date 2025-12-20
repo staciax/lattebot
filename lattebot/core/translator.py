@@ -429,10 +429,8 @@ class Translator(_Translator):
 
     def is_ready(self) -> bool:
         return bool(
-            self._loading_task is not None
-                and self._loading_task.done()
-                and not self._loading_task.cancelled()
-                # and self._loading_task.exception() is None
+            self._loading_task is not None and self._loading_task.done() and not self._loading_task.cancelled()
+            # and self._loading_task.exception() is None
         )
 
     async def _load_locales_data(self) -> None:
