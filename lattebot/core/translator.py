@@ -427,8 +427,8 @@ class Translator(_Translator):
         self._loading_task: asyncio.Task[None] | None = None
 
     async def load(self) -> None:
-        # If already loading, do nothing
-        if self._loading_task is not None:
+        # If already loading and not done, do nothing
+        if self._loading_task is not None and not self._loading_task.done():
             return
 
         self._loading_task = self.bot.loop.create_task(self._load_locales_data(), name='translator-load_locales_data')
