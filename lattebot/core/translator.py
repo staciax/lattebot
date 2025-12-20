@@ -185,6 +185,7 @@ class AppCommandTranslator:
         'translator',
     )
 
+    # NOTE: temporarily store the current command and parameter being processed
     __current_command: Command[Any, ..., Any] | Group | ContextMenu
     __current_parameter: Parameter
 
