@@ -425,35 +425,49 @@ class Translator(_Translator):
         self.app_command_translator = AppCommandTranslator(self)
         self.text_translator = TextTranslator(self)
 
+        # state management
         self._loading_task: asyncio.Task[None] | None = None
+        self._ready: asyncio.Event = asyncio.Event()
 
     async def load(self) -> None:
         # If already loading and not done, do nothing
         if self._loading_task is not None and not self._loading_task.done():
             return
 
+        self._ready.clear()
         self._loading_task = self.bot.loop.create_task(self._load_locales_data(), name='translator-load_locales_data')
 
     async def unload(self) -> None:
+        if not self._ready.is_set():
+            self._ready.set()
+
         if self._loading_task and not self._loading_task.done():
             self._loading_task.cancel()
             try:
                 await self._loading_task
             except asyncio.CancelledError:
-                # Task cancellation is expected during unload; ignore but log for debugging.
+                # Task cancellation is expected during unload, ignore but log for debugging.
                 log.debug('translator load task was cancelled during unload')
 
+        # Clear the ready event
+        self._ready.clear()
+
+        # Clear resources
         await self.app_command_translator.clear()
         await self.text_translator.clear()
+
         self._loading_task = None
 
         log.info('unloaded')
 
     def is_ready(self) -> bool:
-        return bool(
-            self._loading_task is not None and self._loading_task.done() and not self._loading_task.cancelled()
-            # and self._loading_task.exception() is None
-        )
+        return self._ready.is_set()
+
+    async def wait_until_ready(self) -> None:
+        if self._loading_task is None:
+            raise RuntimeError('Translator is not loaded. Call load() first.')
+
+        await self._ready.wait()
 
     async def _load_locales_data(self) -> None:
         await self.bot.wait_until_ready()
@@ -462,19 +476,22 @@ class Translator(_Translator):
 
         # TODO: add support for loading translations from other sources such as global locales folder, etc.
 
-        bot_cogs = self.bot.cogs.values()
-        for cog in bot_cogs:
-            cog_locales_path = await _get_cog_locales_path(cog)
-            if not cog_locales_path:
-                continue
+        try:
+            bot_cogs = self.bot.cogs.values()
+            for cog in bot_cogs:
+                cog_locales_path = await _get_cog_locales_path(cog)
+                if not cog_locales_path:
+                    continue
 
-            for locale in self.locales:
-                locale_directory_path = await _ensure_locale_directory(cog_locales_path, locale)
+                for locale in self.locales:
+                    locale_directory_path = await _ensure_locale_directory(cog_locales_path, locale)
 
-                await self.text_translator.load_locale_data(locale, locale_directory_path)
-                await self.app_command_translator.load_locale_data(locale, locale_directory_path, cog)
+                    await self.text_translator.load_locale_data(locale, locale_directory_path)
+                    await self.app_command_translator.load_locale_data(locale, locale_directory_path, cog)
 
-        log.info('locales data loaded.')
+            log.info('locales data loaded.')
+        finally:
+            self._ready.set()
 
     @overload
     async def translate(self, string: locale_str, locale: Locale, context: OtherTranslationContext) -> str: ...
