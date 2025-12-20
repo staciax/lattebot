@@ -3,6 +3,3 @@
 
 # Exclude Makefile from language stats
 Makefile linguist-vendored
-
-# Exclude Dockerfile from language stats
-Dockerfile linguist-vendored
