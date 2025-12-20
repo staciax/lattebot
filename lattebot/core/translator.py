@@ -438,9 +438,6 @@ class Translator(_Translator):
         self._loading_task = self.bot.loop.create_task(self._load_locales_data(), name='translator-load_locales_data')
 
     async def unload(self) -> None:
-        if not self._ready.is_set():
-            self._ready.set()
-
         if self._loading_task and not self._loading_task.done():
             self._loading_task.cancel()
             try:
