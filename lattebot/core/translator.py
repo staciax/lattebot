@@ -178,7 +178,6 @@ def _update_app_commands_data(cog: Cog, locale_data: dict[str, Any]) -> dict[str
 
 
 class AppCommandTranslator:
-
     __slots__ = (
         '__current_command',
         '__current_parameter',
@@ -397,7 +396,6 @@ class TextTranslator:
 
 
 class Translator(_Translator):
-
     __slots__ = (
         '_loading_task',
         'app_command_translator',
