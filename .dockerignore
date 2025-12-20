@@ -4,24 +4,49 @@
 # For more help, visit the .dockerignore file reference guide at
 # https://docs.docker.com/go/build-context-dockerignore/
 
-**/.DS_Store
-**/__pycache__
-**/.venv
+# Docker files
 **/.dockerignore
-**/.env
-**/.env.example
-**/.git
-**/.github
-**/.gitignore
-**/.gitattributes
-**/.vscode
 **/docker-compose*
 **/compose.y*ml
 **/Dockerfile*
-**/.mypy_cache
-**/.ruff_cache
-**/.pytest_cache
-**/logs
+
+# Python
+**/__pycache__/
+dist/
+
+# Environments
+**/.venv
+**/.env
+**/.env.example
+
+# Git
+**/.git
+**/.gitignore
+**/.gitattributes
+.github/
+
+# Testing & Coverage
+tests/
+.coverage.*
 .coverage
+
+# IDE & Editor
+.vscode/
+.zed/
+
+# Documentation
+/docs
 LICENSE
 README.md
+
+# Logs
+**/logs
+**/*.log
+
+# Caches
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# MacOS
+**/.DS_Store
