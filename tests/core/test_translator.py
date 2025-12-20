@@ -2,7 +2,7 @@ import pytest
 
 from lattebot.core.translator import (
     AppCommandModel,
-    update_app_command_model,
+    _update_app_command_model,  # noqa: PLC2701
 )
 
 
@@ -45,7 +45,7 @@ def test_update_app_command_data() -> None:
         },
     })
 
-    updated_app_command = update_app_command_model(app_command, app_command_update)
+    updated_app_command = _update_app_command_model(app_command, app_command_update)
     updated_app_command_data = updated_app_command.model_dump()
 
     assert updated_app_command_data == {
