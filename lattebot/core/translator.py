@@ -461,10 +461,15 @@ class Translator(_Translator):
         return self._ready.is_set()
 
     async def wait_until_ready(self) -> None:
-        if self._loading_task is None:
+        task = self._loading_task
+        if task is None:
             raise RuntimeError('Translator is not loaded. Call load() first.')
 
         await self._ready.wait()
+
+        # Propagate exception if loading failed
+        if task.done() and (exc := task.exception()):
+            raise exc
 
     async def _load_locales_data(self) -> None:
         await self.bot.wait_until_ready()
