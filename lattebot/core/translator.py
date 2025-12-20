@@ -169,7 +169,6 @@ def _update_app_commands_data(cog: Cog, locale_data: dict[str, Any]) -> dict[str
     return updated_data
 
 
-# TODO: slots
 # TODO: remove duplicate code
 
 # TODO: investigate the new string formatting features in Python 3.14
@@ -179,6 +178,14 @@ def _update_app_commands_data(cog: Cog, locale_data: dict[str, Any]) -> dict[str
 
 
 class AppCommandTranslator:
+
+    __slots__ = (
+        '__current_command',
+        '__current_parameter',
+        '_translations',
+        'translator',
+    )
+
     __current_command: Command[Any, ..., Any] | Group | ContextMenu
     __current_parameter: Parameter
 
@@ -337,6 +344,11 @@ class AppCommandTranslator:
 
 
 class TextTranslator:
+    __slots__ = (
+        '_translations',
+        'translator',
+    )
+
     def __init__(self, translator: Translator) -> None:
         self.translator = translator
         self._translations: dict[str, dict[str, str]] = {}
@@ -385,6 +397,16 @@ class TextTranslator:
 
 
 class Translator(_Translator):
+
+    __slots__ = (
+        '_loading_task',
+        'app_command_translator',
+        'bot',
+        'default_locale',
+        'locales',
+        'text_translator',
+    )
+
     def __init__(
         self,
         bot: LatteBot,
