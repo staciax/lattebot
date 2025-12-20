@@ -458,7 +458,12 @@ class Translator(_Translator):
         log.info('unloaded')
 
     def is_ready(self) -> bool:
-        return self._ready.is_set() and self._loading_task is not None and self._loading_task.exception() is None
+        return (
+            self._ready.is_set()
+            and self._loading_task is not None
+            and self._loading_task.done()
+            and self._loading_task.exception() is None
+        )
 
     async def wait_until_ready(self) -> None:
         task = self._loading_task
