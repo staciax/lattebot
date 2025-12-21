@@ -160,28 +160,28 @@ class LatteBot(commands.AutoShardedBot):
         try:
             await super().load_extension(name, package=package)
         except Exception as e:
-            log.exception('failed to load extension %s', name, exc_info=e)
+            log.exception('failed to load extension %r', name, exc_info=e)
             raise
         else:
-            log.info('loaded extension %s', name)
+            log.info('Loaded extension for %r', name)
 
     async def unload_extension(self, name: str, *, package: str | None = None) -> None:
         try:
             await super().unload_extension(name, package=package)
         except Exception as e:
-            log.exception('failed to unload extension %s', name, exc_info=e)
+            log.exception('failed to unload extension %r', name, exc_info=e)
             raise
         else:
-            log.info('unloaded extension %s', name)
+            log.info('Unloaded extension for %r', name)
 
     async def reload_extension(self, name: str, *, package: str | None = None) -> None:
         try:
             await super().reload_extension(name, package=package)
         except Exception as e:
-            log.exception('failed to reload extension %s', name, exc_info=e)
+            log.exception('failed to reload extension %r', name, exc_info=e)
             raise
         else:
-            log.info('reloaded extension %s', name)
+            log.info('Reloaded extension for %r', name)
 
     async def start(self) -> None:  # type: ignore[override]
         await super().start(token=settings.DISCORD_TOKEN, reconnect=True)
