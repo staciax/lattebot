@@ -155,6 +155,10 @@ runtime-evaluated-base-classes = ["pydantic.BaseModel"]
 ignore-variadic-names = true
 
 [tool.ruff.lint.per-file-ignores]
+"lattebot/embeds.py" = [
+  "PLR0913", # too-many-arguments, LocalizedEmbed
+  "A002"     # builtin-argument-shadowing, allowed type param name "type"
+]
 "lattebot/logging.py" = [
   "A005" # builtin-module-shadowing, allowed filename logging.py
 ]

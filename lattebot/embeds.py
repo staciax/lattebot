@@ -32,13 +32,13 @@ def is_locale_str(value: Any) -> TypeIs[app_commands.locale_str]:
 
 
 class Embed(discord.Embed):
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
         *,
         colour: int | discord.Colour | None = 0xFFFFFF,
         color: int | discord.Colour | None = 0xFFFFFF,
         title: Any | None = None,
-        type: EmbedType = 'rich',  # noqa: A002
+        type: EmbedType = 'rich',
         url: Any | None = None,
         description: Any | None = None,
         timestamp: datetime | None = None,
@@ -61,7 +61,7 @@ class Embed(discord.Embed):
             if isinstance(field, tuple):
                 name, value, *inline = field
                 self.add_field(name=name, value=value, inline=inline[0] if inline else True)
-            elif field in ('blank', 'blank_inline'):  # noqa: PLR6201
+            elif field in {'blank', 'blank_inline'}:
                 self.add_empty_field(inline=field == 'blank_inline')
 
     def set_empty_title(self) -> Self:
@@ -96,7 +96,7 @@ DarkEmbed = partial(Embed, colour=0x0F1923)
 
 
 class LocalizedEmbed(Embed):
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
         translator: Translator,
         locale: discord.Locale,
@@ -104,7 +104,7 @@ class LocalizedEmbed(Embed):
         colour: int | discord.Colour | None = 0xFFFFFF,
         color: int | discord.Colour | None = 0xFFFFFF,
         title: Any | None = None,
-        type: EmbedType = 'rich',  # noqa: A002
+        type: EmbedType = 'rich',
         url: Any | None = None,
         description: Any | None = None,
         timestamp: datetime | None = None,
