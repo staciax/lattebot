@@ -160,7 +160,7 @@ class LatteBot(commands.AutoShardedBot):
         try:
             await super().load_extension(name, package=package)
         except Exception as e:
-            log.exception('failed to load extension %r', name, exc_info=e)
+            log.exception('failed to load extension for %r', name, exc_info=e)
             raise
         else:
             log.info('Loaded extension for %r', name)
@@ -169,7 +169,7 @@ class LatteBot(commands.AutoShardedBot):
         try:
             await super().unload_extension(name, package=package)
         except Exception as e:
-            log.exception('failed to unload extension %r', name, exc_info=e)
+            log.exception('failed to unload extension for %r', name, exc_info=e)
             raise
         else:
             log.info('Unloaded extension for %r', name)
@@ -178,7 +178,7 @@ class LatteBot(commands.AutoShardedBot):
         try:
             await super().reload_extension(name, package=package)
         except Exception as e:
-            log.exception('failed to reload extension %r', name, exc_info=e)
+            log.exception('failed to reload extension for %r', name, exc_info=e)
             raise
         else:
             log.info('Reloaded extension for %r', name)
