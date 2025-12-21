@@ -1,10 +1,14 @@
-from collections.abc import AsyncGenerator  # noqa: TC003
-from typing import Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
 from lattebot.core.bot import LatteBot
 from lattebot.core.config import settings
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
 
 # from lattebot.logging import setup_logging
 

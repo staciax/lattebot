@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import tomllib
 from functools import partial
 from typing import Any, Literal, overload
 
@@ -246,7 +247,7 @@ async def read_yaml(
         return None
 
 
-async def save_yaml(  # noqa: PLR0913
+async def save_yaml(
     file_path: Path | str,
     data: dict[str, Any],
     *,
@@ -330,3 +331,76 @@ async def save_yaml(  # noqa: PLR0913
         # remove temp file if an error occurs
         await tmp_path.unlink(missing_ok=True)
         raise
+
+
+# TOML utils
+
+TomlDecodeError = tomllib.TOMLDecodeError
+
+
+@overload
+async def read_toml(
+    file_path: Path | str,
+    *,
+    raise_on_error: Literal[True],
+) -> dict[str, Any]: ...
+
+
+@overload
+async def read_toml(
+    file_path: Path | str,
+    *,
+    raise_on_error: Literal[False] = False,
+) -> dict[str, Any] | None: ...
+
+
+async def read_toml(
+    file_path: Path | str,
+    *,
+    raise_on_error: bool = False,
+) -> dict[str, Any] | None:
+    """Read and parse a TOML file.
+
+    Args:
+        file_path: Path to the TOML file to read.
+        raise_on_error: If True, raise exceptions for any errors (file not found,
+            invalid TOML). If False, return None on errors. Default is False.
+
+    Returns
+    -------
+        The parsed TOML content as a dictionary.
+        Returns None if an error occurs and raise_on_error is False.
+
+    Raises
+    ------
+        FileNotFoundError: If raise_on_error=True and the file does not exist.
+        FileFormatError: If raise_on_error=True and the file contains invalid TOML.
+
+    Examples
+    --------
+    ```python
+    # Return None on errors
+    config = await read_toml("pyproject.toml")
+    if config is not None:
+        print(config)
+    # Raise exceptions on errors
+    config = await read_toml("pyproject.toml", raise_on_error=True)
+    print(config)  # Guaranteed to be valid TOML, not None
+    ```
+    """
+    if isinstance(file_path, str):
+        file_path = Path(file_path)
+
+    if not await file_path.exists():
+        if raise_on_error:
+            raise FileNotFoundError(f'File {file_path} does not exist.')
+        return None
+
+    toml_text = await file_path.read_text(encoding='utf-8')
+
+    try:
+        return tomllib.loads(toml_text)
+    except TomlDecodeError as e:
+        if raise_on_error:
+            raise FileFormatError(f'Invalid TOML in file {file_path}: {e}') from e
+        return None

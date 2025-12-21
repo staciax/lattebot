@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 
     type Translatable = Command[Any, ..., Any] | Group | ContextMenu | Parameter | Choice[Any]
 
-log = logging.getLogger('latte.translator')
+log = logging.getLogger('lattebot.translator')
 
 
 class BaseModel(PydanticBaseModel):
@@ -495,6 +495,8 @@ class Translator(_Translator):
 
                     await self.text_translator.load_locale_data(locale, locale_directory_path)
                     await self.app_command_translator.load_locale_data(locale, locale_directory_path, cog)
+
+                log.info('loaded locales for cog %s', cog.qualified_name)
 
             log.info('locales data loaded.')
         finally:

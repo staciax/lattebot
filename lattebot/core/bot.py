@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 __all__ = ('LatteBot',)
 
-log = logging.getLogger('latte')
+log = logging.getLogger('lattebot')
 
 description = "Hello, I'm latte bot, a bot made by stacia."
 
@@ -120,13 +120,13 @@ class LatteBot(commands.AutoShardedBot):
         self.bot_app_info = await self.application_info()
         self.owner_ids = [self.bot_app_info.owner.id]
 
-        await self.load_application_emojis()
+        await self._load_application_emojis()
 
         await self.load_cogs()
 
         await self.tree._attach_command_models()
 
-    async def load_application_emojis(self) -> None:
+    async def _load_application_emojis(self) -> None:
         application_emojis = await self.fetch_application_emojis()
         self._application_emojis = {emoji.name: emoji for emoji in application_emojis}
 
@@ -160,28 +160,28 @@ class LatteBot(commands.AutoShardedBot):
         try:
             await super().load_extension(name, package=package)
         except Exception as e:
-            log.exception('failed to load extension %s', name, exc_info=e)
+            log.exception('failed to load extension for %r', name, exc_info=e)
             raise
         else:
-            log.info('loaded extension %s', name)
+            log.info('Loaded extension for %r', name)
 
     async def unload_extension(self, name: str, *, package: str | None = None) -> None:
         try:
             await super().unload_extension(name, package=package)
         except Exception as e:
-            log.exception('failed to unload extension %s', name, exc_info=e)
+            log.exception('failed to unload extension for %r', name, exc_info=e)
             raise
         else:
-            log.info('unloaded extension %s', name)
+            log.info('Unloaded extension for %r', name)
 
     async def reload_extension(self, name: str, *, package: str | None = None) -> None:
         try:
             await super().reload_extension(name, package=package)
         except Exception as e:
-            log.exception('failed to reload extension %s', name, exc_info=e)
+            log.exception('failed to reload extension for %r', name, exc_info=e)
             raise
         else:
-            log.info('reloaded extension %s', name)
+            log.info('Reloaded extension for %r', name)
 
     async def start(self) -> None:  # type: ignore[override]
         await super().start(token=settings.DISCORD_TOKEN, reconnect=True)

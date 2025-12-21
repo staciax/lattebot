@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 
     from lattebot.core.bot import LatteBot
 
-log = logging.getLogger('latte.cogs.jsk')
+log = logging.getLogger('lattebot.cogs.jsk')
 
 os.environ['JISHAKU_NO_UNDERSCORE'] = 'True'
 os.environ['JISHAKU_HIDE'] = 'True'

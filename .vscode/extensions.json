@@ -7,5 +7,7 @@
 		"matangover.mypy",
 		"redhat.vscode-yaml",
 		"tamasfe.even-better-toml",
+		"ms-azuretools.vscode-docker",
+		"github.vscode-github-actions"
 	]
 }

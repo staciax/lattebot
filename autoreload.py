@@ -16,7 +16,7 @@ __all__ = ('Reloader',)
 type Bot_ = commands.Bot | commands.AutoShardedBot
 
 
-_log = logging.getLogger(__name__)
+_log = logging.getLogger('autoreload')
 
 
 def _get_extension_name(file_path: str) -> str:
