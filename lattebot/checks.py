@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from lattebot.core.bot import LatteBot
 
 
-def user(interaction: discord.Interaction) -> discord.User | discord.Member:
+def user(interaction: discord.Interaction[LatteBot]) -> discord.User | discord.Member:
     return interaction.user
 
 
