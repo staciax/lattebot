@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 __all__ = ('LatteBot',)
 
-log = logging.getLogger('latte')
+log = logging.getLogger('lattebot')
 
 description = "Hello, I'm latte bot, a bot made by stacia."
 
