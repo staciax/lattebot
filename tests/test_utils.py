@@ -314,3 +314,6 @@ async def test_save_json_with_string_encoding(
     assert await output_file.exists()
     loaded_data = await read_json(output_file)
     assert loaded_data == test_data
+
+
+# TODO: add tests for read_toml
