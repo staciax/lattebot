@@ -120,13 +120,13 @@ class LatteBot(commands.AutoShardedBot):
         self.bot_app_info = await self.application_info()
         self.owner_ids = [self.bot_app_info.owner.id]
 
-        await self.load_application_emojis()
+        await self._load_application_emojis()
 
         await self.load_cogs()
 
         await self.tree._attach_command_models()
 
-    async def load_application_emojis(self) -> None:
+    async def _load_application_emojis(self) -> None:
         application_emojis = await self.fetch_application_emojis()
         self._application_emojis = {emoji.name: emoji for emoji in application_emojis}
 
