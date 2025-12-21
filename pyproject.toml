@@ -16,7 +16,7 @@ dependencies = [
   "pygit2>=1.19.0, <2.0.0",
   "cchardet==2.2.0a2; python_version < '3.15'",
   "msgspec>=0.20.0, <1.0.0; python_version < '3.15'",
-  "uvloop>=0.21.0; sys_platform != 'win32'"
+  "uvloop>=0.21.0; sys_platform != 'win32'",
 ]
 
 [dependency-groups]
@@ -166,6 +166,9 @@ ignore-variadic-names = true
 ]
 "lattebot/logging.py" = [
   "A005" # builtin-module-shadowing, allowed filename logging.py
+]
+"lattebot/utils.py" = [
+  "PLR0913" # too-many-arguments, save_yaml function
 ]
 "lattebot/core/cog.py" = [
   "PLR0913" # too-many-arguments, context_menu function

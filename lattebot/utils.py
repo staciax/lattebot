@@ -246,7 +246,7 @@ async def read_yaml(
         return None
 
 
-async def save_yaml(  # noqa: PLR0913
+async def save_yaml(
     file_path: Path | str,
     data: dict[str, Any],
     *,
