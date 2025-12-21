@@ -21,15 +21,20 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-  "mypy>=1.19.1, <1.20.0",
-  "ruff>=0.14.9, <0.15.0",
+  "watchfiles>=v1.1.0, <1.2.0",
   "pytest>=9.0.2, <10.0.0",
   "pytest-cov>=7.0.0, <8.0.0",
-  "coverage>=7.10.7, <8.0.0",
-  "types-pyyaml>=6.0, <7.0.0",
-  "watchfiles>=v1.1.0, <1.2.0"
+  "coverage>=7.10.7, <8.0.0"
+]
+lint = [
+  "mypy>=1.19.1, <1.20.0",
+  "ruff>=0.14.10, <0.15.0",
+  "types-pyyaml>=6.0, <7.0.0"
   # "ty>=0.0.1a10",
 ]
+
+[tool.uv]
+default-groups = ["dev", "lint"]
 
 # [tool.uv.sources]
 # discord-py = { git = "https://github.com/Rapptz/discord.py", rev = "master" }
